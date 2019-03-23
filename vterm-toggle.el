@@ -55,6 +55,10 @@
   "vterm prompt regexp. "
   :group 'vterm-toggle
   :type 'string)
+(defcustom vterm-toggle-fullscreen-p t
+  "vterm prompt regexp. "
+  :group 'vterm-toggle
+  :type 'boolean)
 
 (defvar vterm-toggle-vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
   "Function to check whether a buffer is vterm-buffer mode. ")
@@ -130,9 +134,12 @@
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
                 (vterm-send-key "<return>" nil nil nil))))
-
-          (delete-other-windows))
-      (vterm)))
+          (when vterm-toggle-fullscreen-p
+            (delete-other-windows)))
+      (setq vterm-toggle-configration (current-window-configuration))
+      (vterm)
+      (when vterm-toggle-fullscreen-p
+        (delete-other-windows))))
   (vterm-toggle-swith-evil-state vterm-toggle-evil-state-when-enter))
 
 (defun vterm-toggle-skip-prompt ()
@@ -177,6 +184,12 @@ If this takes us past the end of the current line, don't skip at all."
                  (setq shell-buffer buf)))
              (setq index (1+ index)))
     shell-buffer))
+
+(defun vterm-toggle-exit-hook(buf)
+  (when vterm-toggle-configration
+    (set-window-configuration vterm-toggle-configration)))
+
+(add-hook 'vterm-exit-functions #'vterm-toggle-exit-hook)
 
 (provide 'vterm-toggle)
 
