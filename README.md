@@ -17,3 +17,17 @@
  4. If you desire, you automagically get a `cd` command in the shell to the
    directory where your current buffers file exists(`even in a ssh session`); just call
    `vterm-toggle-cd` instead of `vterm-toggle`.
+# Customize
+## show vterm buffer in current window
+```
+(setq vterm-toggle-fullscreen-p nil)
+(setq display-buffer-alist
+      '(
+        ("vterm.*" ;; match your vterm buffer name
+         (display-buffer-reuse-window display-buffer-same-window))
+        ))
+
+
+```
+## vterm-toggle-prompt-regexp
+ you need make sure your shell prompt match this regexp
