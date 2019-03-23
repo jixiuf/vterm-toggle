@@ -121,8 +121,7 @@
             (setq cur-user user)
             (setq cur-port (if port (concat ":" port) ""))
             (setq dir localname))
-        (setq cur-host (system-name))
-        (setq cur-user (getenv "USER")))
+        (setq cur-host (system-name)))
       (setq cd-cmd (concat " cd " (shell-quote-argument dir))))
     (if shell-buffer
         (progn
