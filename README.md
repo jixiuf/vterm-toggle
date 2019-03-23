@@ -29,5 +29,16 @@
 
 
 ```
+## show vterm buffer in left side
+```
+(setq display-buffer-alist
+      '(
+        ("vterm.*"
+         (display-buffer-reuse-window display-buffer-in-side-window)
+         (reusable-frames . visible)
+         (side . left)
+         (window-width . 0.5)
+         )))
+```
 ## vterm-toggle-prompt-regexp
  you need make sure your shell prompt match this regexp
