@@ -144,7 +144,7 @@
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle-configration (current-window-configuration))
-      (with-current-buffer (vterm)
+      (with-current-buffer (vterm-toggle-new)
         (when remote-p
           (vterm-send-string (format "ssh %s@%s%s" cur-user cur-host cur-port) t)
           (vterm-send-key "<return>" nil nil nil)
@@ -156,6 +156,11 @@
         (when vterm-toggle-fullscreen-p
           (delete-other-windows)))))
   (vterm-toggle-swith-evil-state vterm-toggle-evil-state-when-enter))
+
+(defun vterm-toggle-new()
+  (when vterm-toggle-fullscreen-p
+    (vterm)
+    (vterm-other-window)))
 
 (defun vterm-toggle-skip-prompt ()
   "Skip past the text matching regexp `vterm-toggle-prompt-regexp'.
