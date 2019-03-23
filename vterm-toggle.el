@@ -158,7 +158,7 @@
   (vterm-toggle-swith-evil-state vterm-toggle-evil-state-when-enter))
 
 (defun vterm-toggle-new()
-  (when vterm-toggle-fullscreen-p
+  (if vterm-toggle-fullscreen-p
     (vterm)
     (vterm-other-window)))
 
