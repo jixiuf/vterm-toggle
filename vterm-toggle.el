@@ -28,7 +28,7 @@
 ;; o When done in the vterm-buffer you are returned to the same window
 ;;   configuration you had before you toggled to the shell.
 ;; o If you desire, you automagically get a "cd" command in the shell to the
-;;   directory where your current buffers file exists; just call
+;;   directory where your current buffers file exists( even in a ssh session); just call
 ;;   vterm-toggle-cd instead of vterm-toggle.
 ;;
 
@@ -57,6 +57,10 @@
   :type 'string)
 (defcustom vterm-toggle-fullscreen-p t
   "vterm prompt regexp. "
+  :group 'vterm-toggle
+  :type 'boolean)
+(defcustom vterm-toggle-cmd-after-ssh-login nil
+  "will execute this command after open a new ssh session if not nil. "
   :group 'vterm-toggle
   :type 'boolean)
 
@@ -103,18 +107,22 @@
     (switch-to-buffer (vterm-toggle--recent-other-buffer))))
 
 ;;;###autoload
-(defun vterm-toggle-show(&optional  make-cd args)
+(defun vterm-toggle-show(&optional make-cd args)
   (interactive)
   (let* ((shell-buffer (vterm-toggle--recent-vterm-buffer make-cd args))
          (dir (and make-cd
                    (or list-buffers-directory default-directory)))
-         cd-cmd cur-host vterm-dir vterm-host)
+         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
     (when make-cd
       (if (ignore-errors (file-remote-p (or list-buffers-directory default-directory)))
           (with-parsed-tramp-file-name (or list-buffers-directory default-directory) nil
+            (setq remote-p t)
             (setq cur-host host)
+            (setq cur-user user)
+            (setq cur-port (if port (concat ":" port) ""))
             (setq dir localname))
-        (setq cur-host (system-name)))
+        (setq cur-host (system-name))
+        (setq cur-user (getenv "USER")))
       (setq cd-cmd (concat " cd " (shell-quote-argument dir))))
     (if shell-buffer
         (progn
@@ -137,9 +145,17 @@
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle-configration (current-window-configuration))
-      (vterm)
-      (when vterm-toggle-fullscreen-p
-        (delete-other-windows))))
+      (with-current-buffer (vterm)
+        (when remote-p
+          (vterm-send-string (format "ssh %s@%s%s" cur-user cur-host cur-port) t)
+          (vterm-send-key "<return>" nil nil nil)
+          (when vterm-toggle-cmd-after-ssh-login
+            (vterm-send-string vterm-toggle-cmd-after-ssh-login t)
+            (vterm-send-key "<return>" nil nil nil))
+          (vterm-send-string cd-cmd t)
+          (vterm-send-key "<return>" nil nil nil))
+        (when vterm-toggle-fullscreen-p
+          (delete-other-windows)))))
   (vterm-toggle-swith-evil-state vterm-toggle-evil-state-when-enter))
 
 (defun vterm-toggle-skip-prompt ()
@@ -156,15 +172,27 @@ If this takes us past the end of the current line, don't skip at all."
     (vterm-toggle-skip-prompt)))
 
 
-(defun vterm-toggle--recent-vterm-buffer(&optional vterm-accept-cmd-p args)
-  (let ((shell-buffer))
+(defun vterm-toggle--recent-vterm-buffer(&optional make-cd args)
+  (let ((shell-buffer)
+        buffer-host
+        vterm-host)
+    (if (ignore-errors (file-remote-p default-directory))
+        (with-parsed-tramp-file-name default-directory nil
+          (setq buffer-host host))
+      (setq buffer-host (system-name)))
+
     (dolist (buf (buffer-list))
       (with-current-buffer buf
         (when (funcall vterm-toggle-vterm-buffer-p-function args)
           (cond
            ((and (derived-mode-p 'vterm-mode)
-                 vterm-accept-cmd-p)
-            (when (vterm-toggle-accept-cmd-p)
+                 make-cd)
+            (if (ignore-errors (file-remote-p default-directory))
+                (with-parsed-tramp-file-name default-directory nil
+                  (setq vterm-host host))
+              (setq vterm-host (system-name)))
+            (when (and (vterm-toggle-accept-cmd-p)
+                       (equal buffer-host vterm-host))
               (unless shell-buffer
                 (setq shell-buffer buf))))
            (t
