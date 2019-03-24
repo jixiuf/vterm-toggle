@@ -51,7 +51,8 @@
   :group 'vterm-toggle
   :type 'symbolp)
 
-(defcustom vterm-toggle-prompt-regexp "^[a-zA-Z0-9_-]+@[^#$%\n]*[#$%] *"
+(defcustom vterm-toggle-prompt-regexp
+  "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>➜⇒»☞\[@λ].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"
   "vterm prompt regexp. "
   :group 'vterm-toggle
   :type 'string)
