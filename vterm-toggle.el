@@ -79,7 +79,7 @@ for example
   (derived-mode-p 'vterm-mode))
 
 
-(defun vterm-toggle--swith-evil-state (state)
+(defun vterm-toggle--switch-evil-state (state)
   (when (featurep 'evil)
     (funcall (intern (format "evil-%S-state" state)))))
 
@@ -106,7 +106,7 @@ for example
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (funcall vterm-toggle--vterm-buffer-p-function args)
-        (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-leave)
+        (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-leave)
         (bury-buffer))))
   (when vterm-toggle-window-configration
     (set-window-configuration vterm-toggle-window-configration))
@@ -147,7 +147,7 @@ for example
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
                 (vterm-send-key "<return>" nil nil nil)))
-            (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-enter))
+            (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle-window-configration (current-window-configuration))
@@ -161,7 +161,7 @@ for example
           (vterm-send-key "<return>" nil nil nil))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
-        (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-enter)))))
+        (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter)))))
 
 (defun vterm-toggle--new()
   (if vterm-toggle-fullscreen-p
