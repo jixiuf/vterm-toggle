@@ -41,4 +41,40 @@
          )))
 ```
 ## vterm-toggle-prompt-regexp
- you need make sure your shell prompt match this regexp
+you need make sure your shell prompt match this regexp
+
+# work with awesome-tab (select next/prev vterm buffer)
+  https://github.com/manateelazycat/awesome-tab
+  you can custom awesome-tab and make all vterm buffer in a tab group
+  and using `awesome-tab-forward` and  `awesome-tab-backward`
+  switch from one vterm buffer to another.
+  
+```
+(global-set-key  (kbd "s-n") 'awesome-tab-forward)
+(global-set-key  (kbd "s-p") 'awesome-tab-backward)
+```
+
+```
+(setq awesome-tab-buffer-groups-function 'vmacs-awesome-tab-buffer-groups)
+(defun vmacs-awesome-tab-buffer-groups ()
+  "`awesome-tab-buffer-groups' control buffers' group rules.
+    All buffer name start with * will group to \"Emacs\" "
+  (list
+   (cond
+    ((derived-mode-p 'eshell-mode 'term-mode 'shell-mode 'vterm-mode)
+     "Term")
+    ((string-match-p (rx (or
+                          "\*Helm"
+                          "\*helm"
+                          "\*tramp"
+                          "\*Completions\*"
+                          "\*sdcv\*"
+                          "\*Messages\*"
+                          "\*Ido Completions\*"
+                          ))
+                     (buffer-name))
+     "Emacs")
+   ;; ((not (vmacs-show-tabbar-p)) nil) ; donot show tab for this buffer
+    (t "Common"))))
+```
+  
