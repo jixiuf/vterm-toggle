@@ -59,10 +59,17 @@
   "vterm prompt regexp. "
   :group 'vterm-toggle
   :type 'boolean)
-(defcustom vterm-toggle-cmd-after-ssh-login nil
-  "will execute this command after open a new ssh session if not nil. "
+(defcustom vterm-toggle-after-ssh-login-function nil
+  "those functions are called one by one after open a ssh session with 4 arguments.
+`vterm-toggle-after-ssh-login-function' should be a symbol, a hook variable.
+The value of HOOK may be nil, a function, or a list of functions.
+for example
+(defun vterm-toggle-after-ssh-login (user host port localdir)
+    (when (equal host \"my-host\")
+        (vterm-send-string \"zsh\" t)
+        (vterm-send-key \"<return>\" nil nil nil))) "
   :group 'vterm-toggle
-  :type 'boolean)
+  :type 'hook)
 
 (defvar vterm-toggle-vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
   "Function to check whether a buffer is vterm-buffer mode. ")
@@ -111,7 +118,7 @@
   (interactive)
   (let* ((shell-buffer (vterm-toggle--recent-vterm-buffer make-cd args))
          (dir (and make-cd
-                   (or list-buffers-directory default-directory)))
+                   (expand-file-name (or list-buffers-directory default-directory))))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
     (when make-cd
       (if (ignore-errors (file-remote-p (or list-buffers-directory default-directory)))
@@ -148,9 +155,8 @@
         (when remote-p
           (vterm-send-string (format "ssh %s@%s%s" cur-user cur-host cur-port) t)
           (vterm-send-key "<return>" nil nil nil)
-          (when vterm-toggle-cmd-after-ssh-login
-            (vterm-send-string vterm-toggle-cmd-after-ssh-login t)
-            (vterm-send-key "<return>" nil nil nil))
+          (run-hook-with-args 'vterm-toggle-after-ssh-login-function
+                              cur-user cur-host cur-port dir)
           (vterm-send-string cd-cmd t)
           (vterm-send-key "<return>" nil nil nil))
         (when vterm-toggle-fullscreen-p
