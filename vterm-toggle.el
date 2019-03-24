@@ -146,7 +146,8 @@ for example
                          (equal vterm-host cur-host))
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
-                (vterm-send-key "<return>" nil nil nil))))
+                (vterm-send-key "<return>" nil nil nil)))
+            (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-enter))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle-window-configration (current-window-configuration))
@@ -159,8 +160,8 @@ for example
           (vterm-send-string cd-cmd t)
           (vterm-send-key "<return>" nil nil nil))
         (when vterm-toggle-fullscreen-p
-          (delete-other-windows)))))
-  (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-enter))
+          (delete-other-windows))
+        (vterm-toggle--swith-evil-state vterm-toggle-evil-state-when-enter)))))
 
 (defun vterm-toggle--new()
   (if vterm-toggle-fullscreen-p
