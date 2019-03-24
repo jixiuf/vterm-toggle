@@ -1,4 +1,4 @@
-# vterm-toggle Toggle to and from the vterm buffer
+# vterm-toggle Toggle to and from the vterm buffer 
 
   https://github.com/akermu/emacs-libvterm
 
@@ -44,7 +44,9 @@
 you need make sure your shell prompt match this regexp
 
 # work with awesome-tab (select next/prev vterm buffer)
-  https://github.com/manateelazycat/awesome-tab
+
+   https://github.com/manateelazycat/awesome-tab
+
   you can custom awesome-tab and make all vterm buffer in a tab group
   and using `awesome-tab-forward` and  `awesome-tab-backward`
   switch from one vterm buffer to another.
