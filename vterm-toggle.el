@@ -60,6 +60,12 @@
   "vterm prompt regexp. "
   :group 'vterm-toggle
   :type 'boolean)
+
+(defcustom vterm-toggle-use-dedicated-buffer nil
+  "only toggle to or from dedicated vterm buffer."
+  :group 'vterm-toggle
+  :type 'boolean)
+
 (defcustom vterm-toggle-after-ssh-login-function nil
   "those functions are called one by one after open a ssh session with 4 arguments.
 `vterm-toggle-after-ssh-login-function' should be a symbol, a hook variable.
@@ -72,6 +78,7 @@ for example
   :group 'vterm-toggle
   :type 'hook)
 
+(defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar vterm-toggle--vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
   "Function to check whether a buffer is vterm-buffer mode. ")
 
@@ -115,7 +122,7 @@ for example
 
 (defun vterm-toggle-show(&optional make-cd args)
   (interactive)
-  (let* ((shell-buffer (vterm-toggle--recent-vterm-buffer make-cd args))
+  (let* ((shell-buffer (vterm-toggle--get-buffer make-cd args))
          (dir (and make-cd
                    (expand-file-name (or list-buffers-directory default-directory))))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
@@ -181,6 +188,17 @@ If this takes us past the end of the current line, don't skip at all."
     (goto-char (point-at-bol))
     (vterm-toggle--skip-prompt)))
 
+
+(defun vterm-toggle--get-buffer(&optional make-cd args)
+  (if vterm-toggle-use-dedicated-buffer
+      (vterm-toggle--get-dedicated-buffer)
+    (vterm-toggle--recent-vterm-buffer make-cd args)
+      )
+  )
+(defun vterm-toggle--get-dedicated-buffer()
+  (if (buffer-live-p vterm-toggle--vterm-dedicated-buffer)
+      vterm-toggle--vterm-dedicated-buffer
+    (setq vterm-toggle--vterm-dedicated-buffer (vterm-toggle--new))))
 
 (defun vterm-toggle--recent-vterm-buffer(&optional make-cd args)
   (let ((shell-buffer)
