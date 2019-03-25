@@ -36,6 +36,7 @@
 ```
 ## show vterm buffer in left side
 ```
+(setq vterm-toggle-fullscreen-p nil)
 (setq display-buffer-alist
       '(
         ("vterm.*"
@@ -43,6 +44,18 @@
          (reusable-frames . visible)
          (side . left)
          (window-width . 0.5)
+         )))
+```
+## show vterm buffer in bottom side 
+```
+(setq vterm-toggle-fullscreen-p nil)
+(setq display-buffer-alist
+      '(
+        ("vterm.*"
+         (display-buffer-reuse-window display-buffer-in-side-window)
+         (reusable-frames . visible)
+         (side . bottom)
+         (window-height . 0.5)
          )))
 ```
 ## vterm-toggle-prompt-regexp
