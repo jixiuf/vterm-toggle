@@ -81,6 +81,8 @@ for example
 (defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar vterm-toggle--vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
   "Function to check whether a buffer is vterm-buffer mode. ")
+(defvar vterm-toggle--buffer-list nil
+  "The list of non-dedicated terminal buffers managed by `vterm-toggle'.")
 
 (defun vterm-toggle--default-vterm-mode-p(&optional args)
   (derived-mode-p 'vterm-mode))
@@ -241,11 +243,49 @@ If this takes us past the end of the current line, don't skip at all."
              (setq index (1+ index)))
     shell-buffer))
 
-(defun vterm-toggle--exit-hook(buf)
-  (when vterm-toggle-window-configration
-    (set-window-configuration vterm-toggle-window-configration)))
+(defun vterm-toggle--exit-hook()
+  (when (derived-mode-p 'vterm-mode)
+    (setq vterm-toggle--buffer-list
+	      (delq (current-buffer) vterm-toggle--buffer-list))
+    (when vterm-toggle-window-configration
+      (set-window-configuration vterm-toggle-window-configration))))
 
-(add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
+(add-hook 'kill-buffer-hook 'vterm-toggle--exit-hook)
+;; (add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
+
+(defun vterm-toggle--mode-hook()
+    (add-to-list 'vterm-toggle--buffer-list (current-buffer)))
+(add-hook 'vterm-mode-hook 'vterm-toggle--mode-hook)
+
+(defun vterm-toggle--switch (direction offset)
+  "Internal `vterm-toggle' buffers switch function.
+If DIRECTION is `forward', switch to the next term.
+If DIRECTION `backward', switch to the previous term.
+Option OFFSET for skip OFFSET number term buffer."
+  (if vterm-toggle--buffer-list
+      (let ((buffer-list-len (length vterm-toggle--buffer-list))
+	        (index (position (current-buffer) vterm-toggle--buffer-list)))
+	    (if index
+	        (let ((target-index (if (eq direction 'forward)
+				                    (mod (+ index offset) buffer-list-len)
+				                  (mod (- index offset) buffer-list-len))))
+	          (switch-to-buffer (nth target-index vterm-toggle--buffer-list)))
+	      (switch-to-buffer (car vterm-toggle--buffer-list))))
+    nil))
+
+;;;###autoload
+(defun vterm-toggle-forward (&optional offset)
+  "Go to the next term buffer.
+If OFFSET is `non-nil', will goto next term buffer with OFFSET."
+  (interactive "P")
+  (vterm-toggle--switch 'forward (or offset 1)))
+
+;;;###autoload
+(defun vterm-toggle-backward (&optional offset)
+  "Go to the previous term buffer.
+If OFFSET is `non-nil', will goto next term buffer with OFFSET."
+  (interactive "P")
+  (vterm-toggle--switch 'backward (or offset 1)))
 
 (provide 'vterm-toggle)
 

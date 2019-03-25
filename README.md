@@ -5,6 +5,10 @@
 ```
 (global-set-key [f2] 'vterm-toggle)
 (global-set-key [C-f2] 'vterm-toggle-cd)
+
+(global-set-key [f3] 'vterm-toggle-forward) ;Switch to next vterm buffer
+(global-set-key [C-f3] 'vterm-toggle-backward) ;;Switch to previous vterm buffer
+
 ```
  Provides the command `vterm-toggle` which toggles between the
  vterm buffer and whatever buffer you are editing.
