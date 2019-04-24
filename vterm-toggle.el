@@ -53,7 +53,7 @@
 
 (defcustom vterm-toggle-prompt-regexp
   (concat "\\(?:^\\|\r\\)"
-	      "[^]#$%>\n]*#?[]#$%➜⇒»☞\[@λ] *\\(\e\\[[0-9;]*[a-zA-Z] *\\)*")
+	      "[^]#$%>\n]*#?[#$%➜⇒»☞@λ] *\\(\e\\[[0-9;]*[a-zA-Z] *\\)*")
   "vterm prompt regexp. "
   :group 'vterm-toggle
   :type 'string)
