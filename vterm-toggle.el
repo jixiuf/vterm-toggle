@@ -59,12 +59,16 @@
   :group 'vterm-toggle
   :type 'string)
 (defcustom vterm-toggle-fullscreen-p t
-  "Vterm prompt regexp."
+  "Open vterm buffer fullscreen or not."
   :group 'vterm-toggle
   :type 'boolean)
 
 (defcustom vterm-toggle-use-dedicated-buffer nil
   "Only toggle to or from dedicated vterm buffer."
+  :group 'vterm-toggle
+  :type 'boolean)
+(defcustom vterm-toggle-reset-window-configration-after-exit nil
+  "Whether reset window configuration after vterm buffer is killed."
   :group 'vterm-toggle
   :type 'boolean)
 
@@ -275,7 +279,8 @@ Optional argument ARGS optional args."
   (when (derived-mode-p 'vterm-mode)
     (setq vterm-toggle--buffer-list
 	      (delq (current-buffer) vterm-toggle--buffer-list))
-    (when vterm-toggle-window-configration
+    (when (and vterm-toggle-reset-window-configration-after-exit
+               vterm-toggle-window-configration)
       (set-window-configuration vterm-toggle-window-configration))))
 
 (add-hook 'kill-buffer-hook 'vterm-toggle--exit-hook)
