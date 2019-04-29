@@ -1,7 +1,8 @@
 ;;; vterm-toggle.el --- Toggle to and from the vterm buffer
 
 ;; Author: jixiuf  jixiuf@qq.com
-;; Keywords: vterm
+;; Keywords: vterm terminals
+;; Version: 0.0.1
 ;; URL: https://github.com/jixiuf/vterm-toggle
 
 ;; Copyright (C) 2019, jixiuf, all rights reserved.
@@ -17,7 +18,7 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
-;; Description:
+;;; Commentary:
 ;;
 ;; Provides the command vterm-toggle which toggles between the
 ;; vterm buffer and whatever buffer you are editing.
@@ -32,9 +33,9 @@
 ;;   vterm-toggle-cd instead of vterm-toggle.
 ;;
 
-;;
 
 ;;; Code:
+
 (require 'tramp)
 (require 'vterm)
 (require 'evil nil  t)
@@ -54,47 +55,53 @@
 (defcustom vterm-toggle-prompt-regexp
   (concat "\\(?:^\\|\r\\)"
 	      "[^]#$%>\n]*#?[#$%➜⇒»☞@λ] *\\(\e\\[[0-9;]*[a-zA-Z] *\\)*")
-  "vterm prompt regexp. "
+  "Vterm prompt regexp."
   :group 'vterm-toggle
   :type 'string)
 (defcustom vterm-toggle-fullscreen-p t
-  "vterm prompt regexp. "
+  "Vterm prompt regexp."
   :group 'vterm-toggle
   :type 'boolean)
 
 (defcustom vterm-toggle-use-dedicated-buffer nil
-  "only toggle to or from dedicated vterm buffer."
+  "Only toggle to or from dedicated vterm buffer."
   :group 'vterm-toggle
   :type 'boolean)
 
 (defcustom vterm-toggle-after-ssh-login-function nil
-  "those functions are called one by one after open a ssh session with 4 arguments.
+  "Those functions are called one by one after open a ssh session.
 `vterm-toggle-after-ssh-login-function' should be a symbol, a hook variable.
 The value of HOOK may be nil, a function, or a list of functions.
 for example
-(defun vterm-toggle-after-ssh-login (user host port localdir)
+\(defun `vterm-toggle-after-ssh-login' (user host port localdir)
     (when (equal host \"my-host\")
         (vterm-send-string \"zsh\" t)
-        (vterm-send-key \"<return>\" nil nil nil))) "
+        (vterm-send-key \"<return>\" nil nil nil)))"
   :group 'vterm-toggle
   :type 'hook)
 
 (defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar vterm-toggle--vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
-  "Function to check whether a buffer is vterm-buffer mode. ")
+  "Function to check whether a buffer is vterm-buffer mode.")
 (defvar vterm-toggle--buffer-list nil
   "The list of non-dedicated terminal buffers managed by `vterm-toggle'.")
 
 (defun vterm-toggle--default-vterm-mode-p(&optional args)
+  "Check buffer is term-mode-p.
+Optional argument ARGS optional args."
   (derived-mode-p 'vterm-mode))
 
 
 (defun vterm-toggle--switch-evil-state (state)
+  "Switch to `evil-state'.
+Argument STATE Emacs state."
   (when (featurep 'evil)
     (funcall (intern (format "evil-%S-state" state)))))
 
 ;;;###autoload
 (defun vterm-toggle(&optional args)
+  "Vterm toggle.
+Optional argument ARGS ."
   (interactive "P")
   (cond
    ((funcall vterm-toggle--vterm-buffer-p-function args)
@@ -104,6 +111,8 @@ for example
 
 ;;;###autoload
 (defun vterm-toggle-cd(&optional args)
+  "Vterm toggle and insert a cd command.
+Optional argument ARGS ."
   (interactive "P")
   (cond
    ((funcall vterm-toggle--vterm-buffer-p-function args)
@@ -112,6 +121,8 @@ for example
     (vterm-toggle-show t args))))
 
 (defun vterm-toggle-hide(&optional args)
+  "Hide the vterm buffer.
+Optional argument ARGS ."
   (interactive "P")
   (dolist (buf (buffer-list))
     (with-current-buffer buf
@@ -124,6 +135,9 @@ for example
     (switch-to-buffer (vterm-toggle--recent-other-buffer))))
 
 (defun vterm-toggle-show(&optional make-cd args)
+  "Show the vterm buffer.
+Optional argument MAKE-CD whether insert a cd command.
+Optional argument ARGS optional args."
   (interactive)
   (let* ((shell-buffer (vterm-toggle--get-buffer make-cd args))
          (dir (and make-cd
@@ -176,6 +190,7 @@ for example
         (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter)))))
 
 (defun vterm-toggle--new()
+  "New vterm buffer."
   (if vterm-toggle-fullscreen-p
     (vterm)
     (vterm-other-window)))
@@ -189,23 +204,30 @@ If this takes us past the end of the current line, don't skip at all."
       (goto-char (match-end 0)))))
 
 (defun vterm-toggle--accept-cmd-p ()
+  "Check whether the vterm can accept user comand."
   (save-excursion
     (goto-char (point-at-bol))
     (vterm-toggle--skip-prompt)))
 
 
 (defun vterm-toggle--get-buffer(&optional make-cd args)
+  "Get vterm buffer.
+Optional argument MAKE-CD make cd or not.
+Optional argument ARGS optional args."
   (if vterm-toggle-use-dedicated-buffer
       (vterm-toggle--get-dedicated-buffer)
-    (vterm-toggle--recent-vterm-buffer make-cd args)
-      )
-  )
+    (vterm-toggle--recent-vterm-buffer make-cd args)))
+
 (defun vterm-toggle--get-dedicated-buffer()
+  "Get dedicated buffer."
   (if (buffer-live-p vterm-toggle--vterm-dedicated-buffer)
       vterm-toggle--vterm-dedicated-buffer
     (setq vterm-toggle--vterm-dedicated-buffer (vterm-toggle--new))))
 
 (defun vterm-toggle--recent-vterm-buffer(&optional make-cd args)
+  "Get recent vterm buffer.
+Optional argument MAKE-CD make cd or not.
+Optional argument ARGS optional args."
   (let ((shell-buffer)
         buffer-host
         vterm-host)
@@ -234,6 +256,8 @@ If this takes us past the end of the current line, don't skip at all."
     shell-buffer))
 
 (defun vterm-toggle--recent-other-buffer(&optional args)
+  "Get last viewed buffer.
+Optional argument ARGS optional args."
   (let ((list (buffer-list))
         (index 0)
         shell-buffer buf )
@@ -247,6 +271,7 @@ If this takes us past the end of the current line, don't skip at all."
     shell-buffer))
 
 (defun vterm-toggle--exit-hook()
+  "Vterm exit hook."
   (when (derived-mode-p 'vterm-mode)
     (setq vterm-toggle--buffer-list
 	      (delq (current-buffer) vterm-toggle--buffer-list))
@@ -257,6 +282,7 @@ If this takes us past the end of the current line, don't skip at all."
 ;; (add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
 
 (defun vterm-toggle--mode-hook()
+  "Hook form `'vterm-mode-hook'."
     (add-to-list 'vterm-toggle--buffer-list (current-buffer)))
 (add-hook 'vterm-mode-hook 'vterm-toggle--mode-hook)
 
@@ -296,4 +322,4 @@ If OFFSET is `non-nil', will goto next term buffer with OFFSET."
 ;; coding: utf-8
 ;; End:
 
-;;; vterm-toggle.el ends here.
+;;; vterm-toggle.el ends here
