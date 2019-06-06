@@ -289,7 +289,7 @@ Optional argument ARGS optional args."
 ;; (add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
 
 (defun vterm-toggle--mode-hook()
-  "Hook form `'vterm-mode-hook'."
+  "Hook for `vterm-mode-hook'."
   (add-to-list 'vterm-toggle--buffer-list (current-buffer)))
 (add-hook 'vterm-mode-hook 'vterm-toggle--mode-hook)
 
