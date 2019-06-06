@@ -45,11 +45,13 @@
 (defvar vterm-toggle-window-configration nil)
 
 (defcustom vterm-toggle-evil-state-when-enter 'insert
-  "Default evil state for vterm buffer."
+  "Evil state for vterm buffer when swith to vterm buffer.
+nil means don't switch states when toggling"
   :group 'vterm-toggle
   :type 'symbolp)
 (defcustom vterm-toggle-evil-state-when-leave 'normal
-  "Default evil state for vterm buffer."
+  "Default evil state for vterm buffer when leave.
+nil means don't switch states when toggling"
   :group 'vterm-toggle
   :type 'symbolp)
 
@@ -100,7 +102,9 @@ Optional argument ARGS optional args."
 (defun vterm-toggle--switch-evil-state (state)
   "Switch to `evil-state'.
 Argument STATE Emacs state."
-  (when (featurep 'evil)
+  (when (and state
+             (featurep 'evil)
+             (bound-and-true-p evil-local-mode))
     (funcall (intern (format "evil-%S-state" state)))))
 
 ;;;###autoload
