@@ -1,17 +1,8 @@
-# vterm-toggle Toggle to and from the vterm buffer 
+# vterm-toggle Toggle vterm buffer
 
-  https://github.com/akermu/emacs-libvterm
+[emacs-libvterm](https://github.com/akermu/emacs-libvterm)  implements a bridge to libvterm to display a terminal in a emacs buffe.
 
-```
-(global-set-key [f2] 'vterm-toggle)
-(global-set-key [C-f2] 'vterm-toggle-cd)
-
-;Switch to next vterm buffer
-(define-key vterm-mode-map (kbd "s-n")   'vterm-toggle-forward)
-;Switch to previous vterm buffer
-(define-key vterm-mode-map (kbd "s-p")   'vterm-toggle-backward)
-```
- Provides the command `vterm-toggle` which toggles between the
+and this  package provides the command `vterm-toggle` which toggles between the
  vterm buffer and whatever buffer you are editing.
 
  This is done in an "intelligent" way.  Features are:
@@ -22,6 +13,16 @@
  4. If you desire, you automagically get a `cd` command in the shell to the
    directory where your current buffers file exists(`even in a ssh session`); just call
    `vterm-toggle-cd` instead of `vterm-toggle`.
+
+```
+(global-set-key [f2] 'vterm-toggle)
+(global-set-key [C-f2] 'vterm-toggle-cd)
+
+;Switch to next vterm buffer
+(define-key vterm-mode-map (kbd "s-n")   'vterm-toggle-forward)
+;Switch to previous vterm buffer
+(define-key vterm-mode-map (kbd "s-p")   'vterm-toggle-backward)
+```
 # Customize
 ## show vterm buffer in current window
 ```
@@ -46,7 +47,7 @@
          (window-width . 0.5)
          )))
 ```
-## show vterm buffer in bottom side 
+## show vterm buffer in bottom side
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (setq display-buffer-alist
@@ -68,7 +69,7 @@ you need make sure your shell prompt match this regexp
   you can custom awesome-tab and make all vterm buffer in a tab group
   and using `awesome-tab-forward` and  `awesome-tab-backward`
   switch from one vterm buffer to another.
-  
+
 ```
 (global-set-key  (kbd "s-n") 'awesome-tab-forward)
 (global-set-key  (kbd "s-p") 'awesome-tab-backward)
@@ -97,4 +98,3 @@ you need make sure your shell prompt match this regexp
    ;; ((not (vmacs-show-tabbar-p)) nil) ; donot show tab for this buffer
     (t "Common"))))
 ```
-  
