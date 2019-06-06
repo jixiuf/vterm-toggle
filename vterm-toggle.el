@@ -1,8 +1,8 @@
-;;; vterm-toggle.el --- Toggle to and from the vterm buffer
+;;; vterm-toggle.el --- toggles between the vterm buffer and whatever buffer you are editing.
 
 ;; Author: jixiuf  jixiuf@qq.com
 ;; Keywords: vterm terminals
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; URL: https://github.com/jixiuf/vterm-toggle
 ;; Package-Requires: ((emacs "25.1") (vterm "0.0.1"))
 
