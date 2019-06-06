@@ -41,9 +41,6 @@
 (require 'vterm)
 (require 'evil nil  t)
 
-
-(defvar vterm-toggle-window-configration nil)
-
 (defcustom vterm-toggle-evil-state-when-enter 'insert
   "Evil state for vterm buffer when swith to vterm buffer.
 nil means don't switch states when toggling"
@@ -80,13 +77,14 @@ nil means don't switch states when toggling"
 `vterm-toggle-after-ssh-login-function' should be a symbol, a hook variable.
 The value of HOOK may be nil, a function, or a list of functions.
 for example
-\(defun `vterm-toggle-after-ssh-login' (user host port localdir)
+   (defun vterm-toggle-after-ssh-login (user host port localdir)
     (when (equal host \"my-host\")
         (vterm-send-string \"zsh\" t)
         (vterm-send-key \"<return>\" nil nil nil)))"
   :group 'vterm-toggle
   :type 'hook)
 
+(defvar vterm-toggle-window-configration nil)
 (defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar vterm-toggle--vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
   "Function to check whether a buffer is vterm-buffer mode.")
@@ -244,7 +242,6 @@ Optional argument ARGS optional args."
         (with-parsed-tramp-file-name default-directory nil
           (setq buffer-host host))
       (setq buffer-host (system-name)))
-
     (dolist (buf (buffer-list))
       (with-current-buffer buf
         (when (funcall vterm-toggle--vterm-buffer-p-function args)
