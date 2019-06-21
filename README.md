@@ -22,6 +22,14 @@ and this  package provides the command `vterm-toggle` which toggles between the
 (define-key vterm-mode-map (kbd "s-n")   'vterm-toggle-forward)
 ;Switch to previous vterm buffer
 (define-key vterm-mode-map (kbd "s-p")   'vterm-toggle-backward)
+
+```
+##  open a terminal in a specified remote location
+```
+(defun myssh()
+    (interactive)
+    (let ((default-directory "/ssh:root@host:~"))
+      (vterm-toggle-cd)))
 ```
 # Customize
 ## show vterm buffer in current window
