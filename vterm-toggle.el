@@ -148,11 +148,11 @@ Optional argument ARGS optional args."
   (interactive)
   (let* ((shell-buffer (vterm-toggle--get-buffer make-cd args))
          (dir (and make-cd
-                   (expand-file-name (or list-buffers-directory default-directory))))
+                   (expand-file-name default-directory)))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
     (when make-cd
-      (if (ignore-errors (file-remote-p (or list-buffers-directory default-directory)))
-          (with-parsed-tramp-file-name (or list-buffers-directory default-directory) nil
+      (if (ignore-errors (file-remote-p dir))
+          (with-parsed-tramp-file-name dir nil
             (setq remote-p t)
             (setq cur-host host)
             (setq cur-user user)
