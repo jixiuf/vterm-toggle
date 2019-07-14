@@ -300,7 +300,7 @@ If DIRECTION `backward', switch to the previous term.
 Option OFFSET for skip OFFSET number term buffer."
   (if vterm-toggle--buffer-list
       (let ((buffer-list-len (length vterm-toggle--buffer-list))
-	        (index (position (current-buffer) vterm-toggle--buffer-list)))
+	        (index (cl-position (current-buffer) vterm-toggle--buffer-list)))
 	    (if index
 	        (let ((target-index (if (eq direction 'forward)
 				                    (mod (+ index offset) buffer-list-len)
