@@ -80,7 +80,7 @@ for example
    (defun vterm-toggle-after-ssh-login (user host port localdir)
     (when (equal host \"my-host\")
         (vterm-send-string \"zsh\" t)
-        (vterm-send-key \"<return>\" nil nil nil)))"
+        (vterm-send-return)))"
   :group 'vterm-toggle
   :type 'hook)
 
@@ -177,7 +177,7 @@ Optional argument ARGS optional args."
                          (equal vterm-host cur-host))
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
-                (vterm-send-key "<return>" nil nil nil)))
+                (vterm-send-return)))
             (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
@@ -187,11 +187,11 @@ Optional argument ARGS optional args."
           (if cur-user
               (vterm-send-string (format "ssh %s@%s%s" cur-user cur-host cur-port) t)
             (vterm-send-string (format "ssh %s%s"  cur-host cur-port) t))
-          (vterm-send-key "<return>" nil nil nil)
+          (vterm-send-return)
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
           (vterm-send-string cd-cmd t)
-          (vterm-send-key "<return>" nil nil nil))
+          (vterm-send-return))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
         (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter)))))
