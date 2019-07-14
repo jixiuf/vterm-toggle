@@ -1,4 +1,4 @@
-;;; vterm-toggle.el --- toggles between the vterm buffer and whatever buffer you are editing.
+;;; vterm-toggle.el --- Toggles between the vterm buffer and other buffers.
 
 ;; Author: jixiuf  jixiuf@qq.com
 ;; Keywords: vterm terminals
