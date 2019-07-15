@@ -1,4 +1,4 @@
-;;; vterm-toggle.el --- Toggles between the vterm buffer and other buffers.
+;;; vterm-toggle.el --- Toggles between the vterm buffer and other buffers.  -*- lexical-binding: t; -*-
 
 ;; Author: jixiuf  jixiuf@qq.com
 ;; Keywords: vterm terminals
@@ -91,7 +91,7 @@ for example
 (defvar vterm-toggle--buffer-list nil
   "The list of non-dedicated terminal buffers managed by `vterm-toggle'.")
 
-(defun vterm-toggle--default-vterm-mode-p(&optional args)
+(defun vterm-toggle--default-vterm-mode-p(&optional _args)
   "Check buffer is term-mode-p.
 Optional argument ARGS optional args."
   (derived-mode-p 'vterm-mode))
