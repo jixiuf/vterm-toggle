@@ -285,13 +285,13 @@ Optional argument ARGS optional args."
                vterm-toggle--window-configration)
       (set-window-configuration vterm-toggle--window-configration))))
 
-(add-hook 'kill-buffer-hook 'vterm-toggle--exit-hook)
+(add-hook 'kill-buffer-hook #'vterm-toggle--exit-hook)
 ;; (add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
 
 (defun vterm-toggle--mode-hook()
   "Hook for `vterm-mode-hook'."
   (add-to-list 'vterm-toggle--buffer-list (current-buffer)))
-(add-hook 'vterm-mode-hook 'vterm-toggle--mode-hook)
+(add-hook 'vterm-mode-hook #'vterm-toggle--mode-hook)
 
 (defun vterm-toggle--switch (direction offset)
   "Internal `vterm-toggle' buffers switch function.
