@@ -70,24 +70,24 @@ and this  package provides the command `vterm-toggle` which toggles between the
 ## vterm-toggle-prompt-regexp
 you need make sure your shell prompt match this regexp
 
-# work with awesome-tab (select next/prev vterm buffer)
+# work with centaur-tabs (select next/prev vterm buffer)
 
-   https://github.com/manateelazycat/awesome-tab
+   https://github.com/ema2159/centaur-tabs/
 
-  you can custom awesome-tab and make all vterm buffer in a tab group
-  and using `awesome-tab-forward` and  `awesome-tab-backward`
-  switch from one vterm buffer to another.
+you can custom centaur-tabs and make all vterm buffer in a tab group
 
-```
-(global-set-key  (kbd "s-n") 'awesome-tab-forward)
-(global-set-key  (kbd "s-p") 'awesome-tab-backward)
-```
+and using `centaur-tabs-forward` and  `centaur-tabs-backward`
+switch from one vterm buffer to another.
 
 ```
-(setq awesome-tab-buffer-groups-function 'vmacs-awesome-tab-buffer-groups)
+(global-set-key  (kbd "s-n") 'centaur-tabs-forward)
+(global-set-key  (kbd "s-p") 'centaur-tabs-backward)
+```
+
+```
+(setq centaur-tabs-buffer-groups-function 'vmacs-awesome-tab-buffer-groups)
 (defun vmacs-awesome-tab-buffer-groups ()
-  "`awesome-tab-buffer-groups' control buffers' group rules.
-    All buffer name start with * will group to \"Emacs\" "
+  "`vmacs-awesome-tab-buffer-groups' control buffers' group rules. "
   (list
    (cond
     ((derived-mode-p 'eshell-mode 'term-mode 'shell-mode 'vterm-mode)
@@ -103,6 +103,10 @@ you need make sure your shell prompt match this regexp
                           ))
                      (buffer-name))
      "Emacs")
-   ;; ((not (vmacs-show-tabbar-p)) nil) ; donot show tab for this buffer
     (t "Common"))))
+
+(setq vterm-toggle--vterm-buffer-p-function 'vmacs-term-mode-p)
+(defun vmacs-term-mode-p(&optional args)
+  (derived-mode-p 'eshell-mode 'term-mode 'shell-mode 'vterm-mode))
+
 ```
