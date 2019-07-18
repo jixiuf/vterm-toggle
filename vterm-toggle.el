@@ -141,6 +141,12 @@ Optional argument ARGS ."
   (when (funcall vterm-toggle--vterm-buffer-p-function args)
     (switch-to-buffer (vterm-toggle--recent-other-buffer))))
 
+(defun vterm-toggle-tramp-get-method-parameter (method param)
+  "Return the method parameter PARAM.
+If the `tramp-methods' entry does not exist, return NIL."
+  (let ((entry (assoc param (assoc method tramp-methods))))
+    (when entry (cadr entry))))
+
 (defun vterm-toggle-show(&optional make-cd args)
   "Show the vterm buffer.
 Optional argument MAKE-CD whether insert a cd command.
@@ -184,9 +190,11 @@ Optional argument ARGS optional args."
       (setq vterm-toggle--window-configration (current-window-configuration))
       (with-current-buffer (vterm-toggle--new)
         (when remote-p
-          (if cur-user
-              (vterm-send-string (format "ssh %s@%s%s" cur-user cur-host cur-port) t)
-            (vterm-send-string (format "ssh %s%s"  cur-host cur-port) t))
+          (let* ((method (tramp-find-method nil cur-user cur-host))
+                (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
+            (if cur-user
+                (vterm-send-string (format "%s %s@%s%s" login-cmd cur-user cur-host cur-port) t)
+              (vterm-send-string (format "%s %s%s"  login-cmd cur-host cur-port) t)))
           (vterm-send-return)
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
