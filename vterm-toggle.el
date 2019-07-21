@@ -272,16 +272,13 @@ Optional argument ARGS optional args."
 (defun vterm-toggle--recent-other-buffer(&optional args)
   "Get last viewed buffer.
 Optional argument ARGS optional args."
-  (let ((list (buffer-list))
-        (index 0)
-        shell-buffer buf )
-    (cl-loop until shell-buffer do
-             (setq buf (nth index list))
+  (let (shell-buffer)
+    (cl-loop for buf in (buffer-list) do
              (with-current-buffer buf
                (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
                           (not (char-equal ?\  (aref (buffer-name) 0))))
                  (setq shell-buffer buf)))
-             (setq index (1+ index)))
+             until shell-buffer)
     shell-buffer))
 
 (defun vterm-toggle--exit-hook()
