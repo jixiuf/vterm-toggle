@@ -123,7 +123,7 @@ Optional argument ARGS ."
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (funcall vterm-toggle--vterm-buffer-p-function args)
-        (run-hooks vterm-toggle-hide-hook)
+        (run-hooks 'vterm-toggle-hide-hook)
         (bury-buffer))))
   (when vterm-toggle--window-configration
     (set-window-configuration vterm-toggle--window-configration))
@@ -173,7 +173,7 @@ Optional argument ARGS optional args."
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
                 (vterm-send-return)))
-            (run-hooks vterm-toggle-show-hook))
+            (run-hooks 'vterm-toggle-show-hook))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle--window-configration (current-window-configuration))
@@ -191,7 +191,7 @@ Optional argument ARGS optional args."
           (vterm-send-return))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
-        (run-hooks vterm-toggle-show-hook)))))
+        (run-hooks 'vterm-toggle-show-hook)))))
 
 (defun vterm-toggle--new()
   "New vterm buffer."
