@@ -39,16 +39,13 @@
 
 (require 'tramp)
 (require 'vterm)
-(require 'evil nil  t)
 
-(defcustom vterm-toggle-evil-state-when-enter 'insert
-  "Evil state for vterm buffer when swith to vterm buffer.
-nil means don't switch states when toggling"
+(defcustom vterm-toggle-show-hook nil
+  "Hooks when swith to vterm buffer."
   :group 'vterm-toggle
   :type 'symbolp)
-(defcustom vterm-toggle-evil-state-when-leave 'normal
-  "Default evil state for vterm buffer when leave.
-nil means don't switch states when toggling"
+(defcustom vterm-toggle-hide-hook nil
+  "Hooks when hide vterm buffer."
   :group 'vterm-toggle
   :type 'symbolp)
 
@@ -97,14 +94,6 @@ Optional argument ARGS optional args."
   (derived-mode-p 'vterm-mode))
 
 
-(defun vterm-toggle--switch-evil-state (state)
-  "Switch to `evil-state'.
-Argument STATE Emacs state."
-  (when (and state
-             (featurep 'evil)
-             (bound-and-true-p evil-local-mode))
-    (funcall (intern (format "evil-%S-state" state)))))
-
 ;;;###autoload
 (defun vterm-toggle(&optional args)
   "Vterm toggle.
@@ -134,7 +123,7 @@ Optional argument ARGS ."
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (funcall vterm-toggle--vterm-buffer-p-function args)
-        (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-leave)
+        (run-hooks vterm-toggle-hide-hook)
         (bury-buffer))))
   (when vterm-toggle--window-configration
     (set-window-configuration vterm-toggle--window-configration))
@@ -184,7 +173,7 @@ Optional argument ARGS optional args."
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
                 (vterm-send-return)))
-            (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter))
+            (run-hooks vterm-toggle-show-hook))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle--window-configration (current-window-configuration))
@@ -202,7 +191,7 @@ Optional argument ARGS optional args."
           (vterm-send-return))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
-        (vterm-toggle--switch-evil-state vterm-toggle-evil-state-when-enter)))))
+        (run-hooks vterm-toggle-show-hook)))))
 
 (defun vterm-toggle--new()
   "New vterm buffer."
