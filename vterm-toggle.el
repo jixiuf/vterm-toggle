@@ -157,7 +157,8 @@ Optional argument ARGS optional args."
       (setq cd-cmd (concat " cd " (shell-quote-argument dir))))
     (if shell-buffer
         (progn
-          (unless (funcall vterm-toggle--vterm-buffer-p-function args)
+          (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
+                     (not (get-buffer-window shell-buffer)))
             (setq vterm-toggle--window-configration (current-window-configuration)))
           (pop-to-buffer shell-buffer)
           (with-current-buffer shell-buffer
@@ -180,7 +181,7 @@ Optional argument ARGS optional args."
       (with-current-buffer (vterm-toggle--new)
         (when remote-p
           (let* ((method (tramp-find-method nil cur-user cur-host))
-                (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
+                 (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
             (if cur-user
                 (vterm-send-string (format "%s %s@%s%s" login-cmd cur-user cur-host cur-port) t)
               (vterm-send-string (format "%s %s%s"  login-cmd cur-host cur-port) t)))
