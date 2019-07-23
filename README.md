@@ -56,6 +56,19 @@ and this  package provides the command `vterm-toggle` which toggles between the
                 (reusable-frames . visible)
                 (window-height . 0.3)))
 ```
+## show  vterm buffer in side window
+if you want show vterm buffer at bottom side window
+```
+(setq vterm-toggle-fullscreen-p nil)
+(add-to-list 'display-buffer-alist
+             '("^v?term.*"
+                (display-buffer-reuse-window display-buffer-in-side-window)
+                (side . bottom)
+                ;;(dedicated . t) ;dedicated is supported in emacs27
+                (reusable-frames . visible)
+                (window-height . 0.3)))
+```
+
 ## vterm-toggle-prompt-regexp
 you need make sure your shell prompt match this regexp
 
