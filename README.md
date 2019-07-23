@@ -48,10 +48,12 @@ and this  package provides the command `vterm-toggle` which toggles between the
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
              '("^v?term.*"
-                (display-buffer-reuse-window display-buffer-in-direction)
+                (display-buffer-reuse-window display-buffer-at-bottom)
+                ;;(display-buffer-reuse-window display-buffer-in-direction)
+                ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                ;;(direction . bottom)
+                ;;(dedicated . t) ;dedicated is supported in emacs27
                 (reusable-frames . visible)
-                (direction . bottom)
-                ;;(window-width . 0.3)
                 (window-height . 0.3)))
 ```
 ## vterm-toggle-prompt-regexp
