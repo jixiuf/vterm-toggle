@@ -37,35 +37,22 @@ and this  package provides the command `vterm-toggle` which toggles between the
 (setq vterm-toggle-fullscreen-p nil)
 (setq display-buffer-alist
       '(
-        ("vterm.*" ;; match your vterm buffer name
+        ("^v?term.*" ;; match your vterm buffer name
          (display-buffer-reuse-window display-buffer-same-window))
         ))
 
 
 ```
-## show vterm buffer in left side
-```
-(setq vterm-toggle-fullscreen-p nil)
-(setq display-buffer-alist
-      '(
-        ("vterm.*"
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (reusable-frames . visible)
-         (side . left)
-         (window-width . 0.5)
-         )))
-```
 ## show vterm buffer in bottom side
 ```
 (setq vterm-toggle-fullscreen-p nil)
-(setq display-buffer-alist
-      '(
-        ("vterm.*"
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (reusable-frames . visible)
-         (side . bottom)
-         (window-height . 0.5)
-         )))
+(add-to-list 'display-buffer-alist
+             '("^v?term.*"
+                (display-buffer-reuse-window display-buffer-in-direction)
+                (reusable-frames . visible)
+                (direction . bottom)
+                ;;(window-width . 0.3)
+                (window-height . 0.3)))
 ```
 ## vterm-toggle-prompt-regexp
 you need make sure your shell prompt match this regexp
