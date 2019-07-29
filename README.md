@@ -1,9 +1,10 @@
 # vterm-toggle Toggle vterm buffer
 
-[emacs-libvterm](https://github.com/akermu/emacs-libvterm)  implements a bridge to libvterm to display a terminal in a emacs buffe.
+[emacs-libvterm](https://github.com/akermu/emacs-libvterm) implements a bridge
+to libvterm to display a terminal in a emacs buffer.
 
-and this  package provides the command `vterm-toggle` which toggles between the
- vterm buffer and whatever buffer you are editing.
+This package provides the command `vterm-toggle` which toggles between the vterm
+buffer and whatever buffer you are editing.
 
  This is done in an "intelligent" way.  Features are:
  1. Starts a vterm if none is existent.
@@ -11,8 +12,9 @@ and this  package provides the command `vterm-toggle` which toggles between the
  3. When done in the vterm-buffer you are returned to the same window
     configuration you had before you toggled to the shell.
  4. If you desire, you automagically get a `cd` command in the shell to the
-    directory where your current buffers file exists(`even remote file through tramp is supported `);
-    just call `vterm-toggle-cd` instead of `vterm-toggle`.
+    directory where your current buffers file exists(`even remote file through
+    tramp is supported `); just call `vterm-toggle-cd` instead of
+    `vterm-toggle`.
 
 ```
 (global-set-key [f2] 'vterm-toggle)
@@ -57,7 +59,7 @@ and this  package provides the command `vterm-toggle` which toggles between the
                 (window-height . 0.3)))
 ```
 ## show  vterm buffer in side window
-if you want show vterm buffer at bottom side window
+If you want show vterm buffer at bottom side window:
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
@@ -70,16 +72,15 @@ if you want show vterm buffer at bottom side window
 ```
 
 ## vterm-toggle-prompt-regexp
-you need make sure your shell prompt match this regexp
+You need make sure your shell prompt match this regexp
 
 # work with centaur-tabs (select next/prev vterm buffer)
 
    https://github.com/ema2159/centaur-tabs/
 
-you can custom centaur-tabs and make all vterm buffer in a tab group
-
-and using `centaur-tabs-forward` and  `centaur-tabs-backward`
-switch from one vterm buffer to another.
+You can customize `centaur-tabs` and make all vterm buffer in a tab group, and
+use `centaur-tabs-forward` and `centaur-tabs-backward` switch from one vterm
+buffer to another.
 
 ```
 (global-set-key  (kbd "s-n") 'centaur-tabs-forward)
