@@ -117,6 +117,7 @@ Optional argument ARGS ."
     (vterm-toggle-show t args))))
 
 (defun vterm-toggle-send-return()
+  (interactive)
   (vterm-send-key "<return>"))
 
 (defun vterm-toggle-hide(&optional args)
