@@ -182,7 +182,7 @@ Optional argument ARGS optional args."
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
       (setq vterm-toggle--window-configration (current-window-configuration))
-      (with-current-buffer (vterm-toggle--new)
+      (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (when remote-p
           (let* ((method (tramp-find-method nil cur-user cur-host))
                  (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
@@ -196,7 +196,8 @@ Optional argument ARGS optional args."
           (vterm-toggle-send-return))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
-        (run-hooks 'vterm-toggle-show-hook)))))
+        (run-hooks 'vterm-toggle-show-hook)))
+    shell-buffer))
 
 (defun vterm-toggle--new()
   "New vterm buffer."
