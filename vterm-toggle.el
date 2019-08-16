@@ -77,7 +77,7 @@ for example
    (defun vterm-toggle-after-ssh-login (user host port localdir)
     (when (equal host \"my-host\")
         (vterm-send-string \"zsh\" t)
-        (vterm-toggle-send-return)))"
+        (vterm-send-return)))"
   :group 'vterm-toggle
   :type 'hook)
 
@@ -115,10 +115,6 @@ Optional argument ARGS ."
     (vterm-toggle-hide args))
    (t
     (vterm-toggle-show t args))))
-
-(defun vterm-toggle-send-return()
-  (interactive)
-  (vterm-send-key "<return>"))
 
 (defun vterm-toggle-hide(&optional args)
   "Hide the vterm buffer.
@@ -177,7 +173,7 @@ Optional argument ARGS optional args."
                          (equal vterm-host cur-host))
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
-                (vterm-toggle-send-return)))
+                (vterm-send-return)))
             (run-hooks 'vterm-toggle-show-hook))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
@@ -189,11 +185,11 @@ Optional argument ARGS optional args."
             (if cur-user
                 (vterm-send-string (format "%s %s@%s%s" login-cmd cur-user cur-host cur-port) t)
               (vterm-send-string (format "%s %s%s"  login-cmd cur-host cur-port) t)))
-          (vterm-toggle-send-return)
+          (vterm-send-return)
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
           (vterm-send-string cd-cmd t)
-          (vterm-toggle-send-return))
+          (vterm-send-return))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
         (run-hooks 'vterm-toggle-show-hook)))
