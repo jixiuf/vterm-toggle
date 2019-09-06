@@ -85,8 +85,6 @@ If you want show vterm buffer at bottom side window:
                 (window-height . 0.3)))
 ```
 
-## vterm-toggle-prompt-regexp
-You need make sure your shell prompt match this regexp
 
 # work with centaur-tabs (select next/prev vterm buffer)
 
