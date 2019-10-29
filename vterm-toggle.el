@@ -55,6 +55,7 @@
   "Vterm prompt regexp."
   :group 'vterm-toggle
   :type 'string)
+
 (defcustom vterm-toggle-fullscreen-p t
   "Open vterm buffer fullscreen or not."
   :group 'vterm-toggle
@@ -64,6 +65,13 @@
   "Only toggle to or from dedicated vterm buffer."
   :group 'vterm-toggle
   :type 'boolean)
+
+(defcustom vterm-toggle-cd-auto-create-buffer t
+  "If the prompt of recent vterm buffer is not available,
+`vterm-toggle-cd' would create a new vterm buffer."
+  :group 'vterm-toggle
+  :type 'boolean)
+
 (defcustom vterm-toggle-reset-window-configration-after-exit nil
   "Whether reset window configuration after vterm buffer is killed."
   :group 'vterm-toggle
@@ -141,7 +149,8 @@ If the `tramp-methods' entry does not exist, return NIL."
 Optional argument MAKE-CD whether insert a cd command.
 Optional argument ARGS optional args."
   (interactive)
-  (let* ((shell-buffer (vterm-toggle--get-buffer make-cd args))
+  (let* ((shell-buffer (vterm-toggle--get-buffer
+                        make-cd (not vterm-toggle-cd-auto-create-buffer) args))
          (dir (and make-cd
                    (expand-file-name default-directory)))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
@@ -170,7 +179,8 @@ Optional argument ARGS optional args."
                 (setq vterm-dir default-directory)
                 (setq vterm-host (system-name)))
               (when (and (not (equal vterm-dir dir))
-                         (equal vterm-host cur-host))
+                         (equal vterm-host cur-host)
+                         (vterm-toggle--accept-cmd-p))
                 (vterm-send-key "u" nil nil t)
                 (vterm-send-string cd-cmd t)
                 (vterm-send-return)))
@@ -216,13 +226,13 @@ If this takes us past the end of the current line, don't skip at all."
     (vterm-toggle--skip-prompt)))
 
 
-(defun vterm-toggle--get-buffer(&optional make-cd args)
+(defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p args)
   "Get vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
   (if vterm-toggle-use-dedicated-buffer
       (vterm-toggle--get-dedicated-buffer)
-    (vterm-toggle--recent-vterm-buffer make-cd args)))
+    (vterm-toggle--recent-vterm-buffer make-cd ignore-prompt-p args)))
 
 (defun vterm-toggle--get-dedicated-buffer()
   "Get dedicated buffer."
@@ -230,7 +240,7 @@ Optional argument ARGS optional args."
       vterm-toggle--vterm-dedicated-buffer
     (setq vterm-toggle--vterm-dedicated-buffer (vterm-toggle--new))))
 
-(defun vterm-toggle--recent-vterm-buffer(&optional make-cd args)
+(defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p args)
   "Get recent vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
@@ -251,7 +261,8 @@ Optional argument ARGS optional args."
                 (with-parsed-tramp-file-name default-directory nil
                   (setq vterm-host host))
               (setq vterm-host (system-name)))
-            (when (and (vterm-toggle--accept-cmd-p)
+            (when (and (or ignore-prompt-p
+                           (vterm-toggle--accept-cmd-p))
                        (equal buffer-host vterm-host))
               (unless shell-buffer
                 (setq shell-buffer buf))))
