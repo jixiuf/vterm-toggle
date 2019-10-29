@@ -95,6 +95,7 @@ for example
   "Function to check whether a buffer is vterm-buffer mode.")
 (defvar vterm-toggle--buffer-list nil
   "The list of non-dedicated terminal buffers managed by `vterm-toggle'.")
+(defvar-local vterm-toggle--cd-cmd nil)
 
 (defun vterm-toggle--default-vterm-mode-p(&optional _args)
   "Check buffer is term-mode-p.
@@ -151,19 +152,17 @@ Optional argument ARGS optional args."
   (interactive)
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer) args))
-         (dir (and make-cd
-                   (expand-file-name default-directory)))
+         (dir (expand-file-name default-directory))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
-    (when make-cd
-      (if (ignore-errors (file-remote-p dir))
-          (with-parsed-tramp-file-name dir nil
-            (setq remote-p t)
-            (setq cur-host host)
-            (setq cur-user user)
-            (setq cur-port (if port (concat ":" port) ""))
-            (setq dir localname))
-        (setq cur-host (system-name)))
-      (setq cd-cmd (concat " cd " (shell-quote-argument dir))))
+    (if (ignore-errors (file-remote-p dir))
+        (with-parsed-tramp-file-name dir nil
+          (setq remote-p t)
+          (setq cur-host host)
+          (setq cur-user user)
+          (setq cur-port (if port (concat ":" port) ""))
+          (setq dir localname))
+      (setq cur-host (system-name)))
+    (setq cd-cmd (concat " cd " (shell-quote-argument dir)))
     (if shell-buffer
         (progn
           (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
@@ -172,6 +171,7 @@ Optional argument ARGS optional args."
           (pop-to-buffer shell-buffer)
           (with-current-buffer shell-buffer
             (when (derived-mode-p 'vterm-mode)
+              (setq vterm-toggle--cd-cmd cd-cmd)
               (if (ignore-errors (file-remote-p default-directory))
                   (with-parsed-tramp-file-name default-directory nil
                     (setq vterm-dir localname)
@@ -180,10 +180,9 @@ Optional argument ARGS optional args."
                 (setq vterm-host (system-name)))
               (when (and (not (equal vterm-dir dir))
                          (equal vterm-host cur-host)
+                         make-cd
                          (vterm-toggle--accept-cmd-p))
-                (vterm-send-key "u" nil nil t)
-                (vterm-send-string cd-cmd t)
-                (vterm-send-return)))
+                (vterm-toggle-insert-cd)))
             (run-hooks 'vterm-toggle-show-hook))
           (when vterm-toggle-fullscreen-p
             (delete-other-windows)))
@@ -204,6 +203,15 @@ Optional argument ARGS optional args."
           (delete-other-windows))
         (run-hooks 'vterm-toggle-show-hook)))
     shell-buffer))
+
+;;;###autoload
+(defun vterm-toggle-insert-cd()
+  "Cd to the directory where your previous buffer file exists.
+after you have toggle to the vterm buffer with `vterm-toggle'."
+  (interactive)
+  (when vterm-toggle--cd-cmd
+    (vterm-send-string vterm-toggle--cd-cmd t)
+    (vterm-send-return)))
 
 (defun vterm-toggle--new()
   "New vterm buffer."
