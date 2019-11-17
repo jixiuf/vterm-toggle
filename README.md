@@ -117,3 +117,23 @@ buffer to another.
   (derived-mode-p 'eshell-mode 'term-mode 'shell-mode 'vterm-mode))
 
 ```
+# vterm-toggle-use-dedicated-buffer
+When  vterm-toggle-use-dedicated-buffer is not nil, you can toggle to a dedidated vterm buffer.
+
+you can toggle to different dedidated buffer for different purpose.
+For example, I want to replace default `compile` with my `vterm-compile`
+```
+(defvar vterm-compile-dedidated-buffer nil)
+(defun vterm-compile ()
+  (interactive)
+  (let ((vterm-toggle-use-dedicated-buffer t)
+        (vterm-toggle--vterm-dedicated-buffer vterm-compile-dedidated-buffer))
+    (with-current-buffer (vterm-toggle-cd)
+      (setq vterm-compile-dedidated-buffer (current-buffer))
+      (rename-buffer "term compile")
+      (compilation-shell-minor-mode 1)
+      (vterm-send-string compile-command t)
+      (vterm-send-return))
+    )
+  )
+```
