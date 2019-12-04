@@ -38,6 +38,7 @@
 ;;; Code:
 
 (require 'tramp)
+(require 'tramp-sh)
 (require 'vterm)
 
 (defcustom vterm-toggle-show-hook nil
@@ -154,13 +155,14 @@ Optional argument ARGS optional args."
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer) args))
          (dir (expand-file-name default-directory))
-         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p)
+         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p cur-method)
     (if (ignore-errors (file-remote-p dir))
         (with-parsed-tramp-file-name dir nil
           (setq remote-p t)
+          (setq cur-method method)
           (setq cur-host host)
           (setq cur-user user)
-          (setq cur-port (if port (concat "-p " port) ""))
+          (setq cur-port (or port ""))
           (setq dir localname))
       (setq cur-host (system-name)))
     (setq cd-cmd (concat " cd " (shell-quote-argument dir)))
@@ -190,12 +192,24 @@ Optional argument ARGS optional args."
       (setq vterm-toggle--window-configration (current-window-configuration))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (when remote-p
-          (let* ((method (tramp-find-method nil cur-user cur-host))
-                 (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
-            (if cur-user
-                (vterm-send-string (format "%s %s %s@%s" login-cmd cur-port cur-user cur-host) t)
-              (vterm-send-string (format "%s %s %s"  login-cmd cur-port cur-host ) t)))
-          (vterm-send-return)
+          (let* ((method (tramp-find-method cur-method cur-user cur-host))
+                 (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program))
+                 (login-opts (vterm-toggle-tramp-get-method-parameter method 'tramp-login-args))
+                 (login-shell (vterm-toggle-tramp-get-method-parameter method 'tramp-remote-shell))
+                 (login-shell-args (tramp-get-sh-extra-args login-shell))
+                 (spec (format-spec-make
+			            ?h cur-host ?u cur-user ?p cur-port ?c ""
+			            ?l (concat login-shell " " login-shell-args)))
+                 (cmd
+                  (concat login-cmd " "
+                          (mapconcat
+		                   (lambda (x)
+			                 (setq x (mapcar (lambda (y) (format-spec y spec)) x))
+			                 (unless (member "" x) (string-join x " ")))
+		                   login-opts " "))))
+                (vterm-send-string cmd t)
+                (vterm-send-return)
+            )
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
           (vterm-send-string cd-cmd t)
