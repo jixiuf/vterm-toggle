@@ -37,6 +37,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'tramp)
 (require 'tramp-sh)
 (require 'vterm)
@@ -191,6 +192,7 @@ Optional argument ARGS optional args."
             (delete-other-windows)))
       (setq vterm-toggle--window-configration (current-window-configuration))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
+        (vterm-toggle--wait-prompt)
         (when remote-p
           (let* ((method (tramp-find-method cur-method cur-user cur-host))
                  (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program))
@@ -207,17 +209,33 @@ Optional argument ARGS optional args."
 			                 (setq x (mapcar (lambda (y) (format-spec y spec)) x))
 			                 (unless (member "" x) (string-join x " ")))
 		                   login-opts " "))))
-                (vterm-send-string cmd t)
-                (vterm-send-return)
-            )
+            (vterm-send-string cmd)
+            (vterm-send-return))
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
-          (vterm-send-string cd-cmd t)
-          (vterm-send-return))
+          (vterm-send-string cd-cmd)
+          (vterm-send-return)
+          (setq default-directory
+	            (file-name-as-directory
+	             (if (and (string= cur-host (system-name))
+                          (string= cur-user (user-real-login-name)))
+		             (expand-file-name term-ansi-at-dir)
+                   (concat "/" cur-method ":" cur-user "@" cur-host ":"
+                           dir)))))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
         (run-hooks 'vterm-toggle-show-hook)))
     shell-buffer))
+
+(defun vterm-toggle--wait-prompt()
+  "Wait prompt."
+  (let ((wait-ms 0))
+    (cl-loop until (or (> (length (string-trim
+                                   (buffer-substring-no-properties
+                                    (point-min) (point-max)))) 0)
+                       (> wait-ms 3000)) do
+                       (sleep-for 0.1)
+                       (setq wait-ms (+ wait-ms 100)))))
 
 ;;;###autoload
 (defun vterm-toggle-insert-cd()
@@ -263,6 +281,7 @@ Optional argument ARGS optional args."
       vterm-toggle--vterm-dedicated-buffer
     (setq vterm-toggle--vterm-dedicated-buffer (vterm-toggle--new))
     (with-current-buffer vterm-toggle--vterm-dedicated-buffer
+      (vterm-toggle--wait-prompt)
       (setq vterm-toggle--dedicated-p t)
       vterm-toggle--vterm-dedicated-buffer)))
 
