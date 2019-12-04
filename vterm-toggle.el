@@ -160,7 +160,7 @@ Optional argument ARGS optional args."
           (setq remote-p t)
           (setq cur-host host)
           (setq cur-user user)
-          (setq cur-port (if port (concat ":" port) ""))
+          (setq cur-port (if port (concat "-p " port) ""))
           (setq dir localname))
       (setq cur-host (system-name)))
     (setq cd-cmd (concat " cd " (shell-quote-argument dir)))
@@ -193,8 +193,8 @@ Optional argument ARGS optional args."
           (let* ((method (tramp-find-method nil cur-user cur-host))
                  (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program)))
             (if cur-user
-                (vterm-send-string (format "%s %s@%s%s" login-cmd cur-user cur-host cur-port) t)
-              (vterm-send-string (format "%s %s%s"  login-cmd cur-host cur-port) t)))
+                (vterm-send-string (format "%s %s %s@%s" login-cmd cur-port cur-user cur-host) t)
+              (vterm-send-string (format "%s %s %s"  login-cmd cur-port cur-host ) t)))
           (vterm-send-return)
           (run-hook-with-args 'vterm-toggle-after-ssh-login-function
                               cur-user cur-host cur-port dir)
