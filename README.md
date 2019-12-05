@@ -20,7 +20,7 @@ buffer and whatever buffer you are editing.
 (global-set-key [f2] 'vterm-toggle)
 (global-set-key [C-f2] 'vterm-toggle-cd)
 
-;; you can cd to the directory where your previous buffer file exists 
+;; you can cd to the directory where your previous buffer file exists
 ;; after you have toggle to the vterm buffer with `vterm-toggle'.
 (define-key vterm-mode-map [(control return)]   #'vterm-toggle-insert-cd)
 
@@ -36,7 +36,17 @@ buffer and whatever buffer you are editing.
     (interactive)
     (let ((default-directory "/ssh:root@host:~"))
       (vterm-toggle-cd)))
+
 ```
+With https://github.com/emacs-pe/docker-tramp.el
+you can open a terminal in a specified docker container
+```
+(defun mydocker()
+    (interactive)
+    (let ((default-directory "/docker:root@697a9e2789c3:/root/"))
+      (vterm-toggle-cd)))
+```
+
 # Customize
 ## show vterm buffer in current window
 ```
