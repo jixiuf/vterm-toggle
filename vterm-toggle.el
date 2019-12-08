@@ -234,8 +234,8 @@ Optional argument ARGS optional args."
                                    (buffer-substring-no-properties
                                     (point-min) (point-max)))) 0)
                        (> wait-ms 3000)) do
-                       (sleep-for 0.1)
-                       (setq wait-ms (+ wait-ms 100)))))
+                       (sleep-for 0.01)
+                       (setq wait-ms (+ wait-ms 10)))))
 
 ;;;###autoload
 (defun vterm-toggle-insert-cd()
