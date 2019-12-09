@@ -172,9 +172,9 @@ Optional argument ARGS optional args."
     (if (ignore-errors (file-remote-p dir))
         (with-parsed-tramp-file-name dir nil
           (setq remote-p t)
-          (setq cur-method method)
           (setq cur-host host)
-          (setq cur-user user)
+          (setq cur-user (or (tramp-find-user cur-method user cur-host) ""))
+          (setq cur-method (tramp-find-method method cur-user cur-host))
           (setq cur-port (or port ""))
           (setq dir localname))
       (setq cur-host (system-name)))
@@ -206,10 +206,9 @@ Optional argument ARGS optional args."
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
         (when remote-p
-          (let* ((method (tramp-find-method cur-method cur-user cur-host))
-                 (login-cmd (vterm-toggle-tramp-get-method-parameter method 'tramp-login-program))
-                 (login-opts (vterm-toggle-tramp-get-method-parameter method 'tramp-login-args))
-                 (login-shell (vterm-toggle-tramp-get-method-parameter method 'tramp-remote-shell))
+          (let* ((login-cmd (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-login-program))
+                 (login-opts (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-login-args))
+                 (login-shell (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-remote-shell))
                  (login-shell-args (tramp-get-sh-extra-args login-shell))
                  (spec (format-spec-make
 			            ?h cur-host ?u cur-user ?p cur-port ?c ""
