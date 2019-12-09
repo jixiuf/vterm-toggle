@@ -148,7 +148,7 @@ If the `tramp-methods' entry does not exist, return NIL."
   (let ((entry (assoc param (assoc method tramp-methods))))
     (when entry (cadr entry))))
 
-(when (version<= "26.3" emacs-version)
+(when (version<= emacs-version "26.3")
   (with-eval-after-load 'tramp-sh
     (defun tramp-get-sh-extra-args (shell)
       "Find extra args for SHELL."
