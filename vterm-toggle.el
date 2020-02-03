@@ -178,7 +178,11 @@ Optional argument ARGS optional args."
           (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
                      (not (get-buffer-window shell-buffer)))
             (setq vterm-toggle--window-configration (current-window-configuration)))
-          (pop-to-buffer shell-buffer)
+          (if vterm-toggle-fullscreen-p
+              (progn
+                (delete-other-windows)
+                (switch-to-buffer shell-buffer))
+            (pop-to-buffer shell-buffer))
           (with-current-buffer shell-buffer
             (when (derived-mode-p 'vterm-mode)
               (setq vterm-toggle--cd-cmd cd-cmd)
@@ -194,8 +198,7 @@ Optional argument ARGS optional args."
                          (vterm--at-prompt-p))
                 (vterm-toggle-insert-cd)))
             (run-hooks 'vterm-toggle-show-hook))
-          (when vterm-toggle-fullscreen-p
-            (delete-other-windows)))
+          )
       (setq vterm-toggle--window-configration (current-window-configuration))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
