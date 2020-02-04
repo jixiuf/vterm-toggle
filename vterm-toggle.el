@@ -157,7 +157,7 @@ If the `tramp-methods' entry does not exist, return NIL."
   "Show the vterm buffer.
 Optional argument MAKE-CD whether insert a cd command.
 Optional argument ARGS optional args."
-  (interactive)
+  (interactive "P")
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer) args))
          (dir (expand-file-name default-directory))
@@ -286,31 +286,30 @@ Optional argument ARGS optional args."
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
   (let ((shell-buffer)
+        (curbuf (current-buffer))
         buffer-host
         vterm-host)
     (if (ignore-errors (file-remote-p default-directory))
         (with-parsed-tramp-file-name default-directory nil
           (setq buffer-host host))
       (setq buffer-host (system-name)))
-    (dolist (buf (buffer-list))
-      (with-current-buffer buf
-        (when (and (funcall vterm-toggle--vterm-buffer-p-function args)
-                   (not vterm-toggle--dedicated-p))
-          (cond
-           ((and (derived-mode-p 'vterm-mode)
-                 make-cd)
-            (if (ignore-errors (file-remote-p default-directory))
-                (with-parsed-tramp-file-name default-directory nil
-                  (setq vterm-host host))
-              (setq vterm-host (system-name)))
-            (when (and (or ignore-prompt-p
-                       (vterm--at-prompt-p))
-                       (equal buffer-host vterm-host))
-              (unless shell-buffer
-                (setq shell-buffer buf))))
-           (t
-            (unless shell-buffer
-              (setq shell-buffer buf)))))))
+    (cl-loop for buf in (buffer-list) do
+             (with-current-buffer buf
+               (when (and (funcall vterm-toggle--vterm-buffer-p-function args)
+                          (not (eq curbuf buf))
+                          (not vterm-toggle--dedicated-p))
+                 (cond
+                  ((and  make-cd (derived-mode-p 'vterm-mode))
+                   (if (ignore-errors (file-remote-p default-directory))
+                       (with-parsed-tramp-file-name default-directory nil
+                         (setq vterm-host host))
+                     (setq vterm-host (system-name)))
+                   (when (and (or ignore-prompt-p
+                                  (vterm--at-prompt-p))
+                              (equal buffer-host vterm-host))
+                     (setq shell-buffer buf)))
+                  (t (setq shell-buffer buf)))))
+             until shell-buffer)
     shell-buffer))
 
 (defun vterm-toggle--recent-other-buffer(&optional args)
