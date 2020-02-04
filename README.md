@@ -51,11 +51,9 @@ you can open a terminal in a specified docker container
 ## show vterm buffer in current window
 ```
 (setq vterm-toggle-fullscreen-p nil)
-(setq display-buffer-alist
-      '(
-        ("^v?term.*" ;; match your vterm buffer name
-         (display-buffer-reuse-window display-buffer-same-window))
-        ))
+(add-to-list 'display-buffer-alist
+      '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+         (display-buffer-reuse-window display-buffer-same-window)))
 
 
 ```
@@ -63,7 +61,7 @@ you can open a terminal in a specified docker container
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
-             '("^v?term.*"
+             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
                 (display-buffer-reuse-window display-buffer-at-bottom)
                 ;;(display-buffer-reuse-window display-buffer-in-direction)
                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
@@ -77,7 +75,7 @@ If you want show vterm buffer at bottom side window:
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
-             '("^v?term.*"
+             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
                 (display-buffer-reuse-window display-buffer-in-side-window)
                 (side . bottom)
                 ;;(dedicated . t) ;dedicated is supported in emacs27
