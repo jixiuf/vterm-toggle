@@ -153,6 +153,15 @@ If the `tramp-methods' entry does not exist, return NIL."
 	        (setq extra-args (cdr item))))
         extra-args))))
 
+(defun vterm-toggle-cd-show(&optional  args)
+  "Switch to an idle vterm buffer and insert a cd command.
+Or create 1 new vterm buffer.
+Optional argument ARGS optional args.
+Usually I would bind it in `vterm-mode-map'
+(define-key vterm-mode-map (kbd \"s-t\")   #'vmacs-vterm-toggle-show)"
+  (interactive "P")
+  (vterm-toggle-show (not args)))
+
 (defun vterm-toggle-show(&optional make-cd args)
   "Show the vterm buffer.
 Optional argument MAKE-CD whether insert a cd command.
