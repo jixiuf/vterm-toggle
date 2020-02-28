@@ -49,6 +49,20 @@ you can open a terminal in a specified docker container
 ```
 
 # Customize
+## vterm-toggle-cd-auto-create-buffer
+With
+```
+(setq vterm-toggle-cd-auto-create-buffer nil)
+```
+`vterm-toggle-cd`  would activate a recent vterm buffer even if no prompt can be found
+(with vterm-toggle-use-dedicated-buffer still nil). So when the current buffer is not a vterm buffer,
+it would always activate a recent vterm buffer if there is one but would only insert cd if the prompt is available.
+And you can bind
+```
+(define-key vterm-mode-map [(control return)]   #'vterm-toggle-insert-cd)
+```
+
+
 ## show vterm buffer in current window
 ```
 (setq vterm-toggle-fullscreen-p nil)

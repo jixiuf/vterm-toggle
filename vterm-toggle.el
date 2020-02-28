@@ -204,8 +204,11 @@ Optional argument ARGS optional args."
               (when (and (not (equal vterm-dir dir))
                          (equal vterm-host cur-host)
                          make-cd
-                         (vterm--at-prompt-p))
-                (vterm-toggle-insert-cd)))
+                         )
+                (if (vterm--at-prompt-p)
+                    (vterm-toggle-insert-cd)
+                  (message "No prompt can be found, you can insert '%s' by M-x:vterm-toggle-insert-cd."
+                           vterm-toggle--cd-cmd))))
             (run-hooks 'vterm-toggle-show-hook))
           )
       (setq vterm-toggle--window-configration (current-window-configuration))
