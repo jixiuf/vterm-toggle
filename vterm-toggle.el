@@ -61,7 +61,7 @@
   :group 'vterm-toggle
   :type 'boolean)
 
-(defcustom vterm-toggle-cd-auto-create-buffer t
+(defcustom vterm-toggle-cd-auto-create-buffer nil
   "If the prompt of recent vterm buffer is not available,
 `vterm-toggle-cd' would create a new vterm buffer."
   :group 'vterm-toggle
@@ -208,7 +208,7 @@ Optional argument ARGS optional args."
                 (sleep-for 0.01)
                 (if (vterm--at-prompt-p)
                     (vterm-toggle-insert-cd)
-                  (message "No prompt can be found, you can insert '%s' by M-x:vterm-toggle-insert-cd."
+                  (message "You can insert '%s' by M-x:vterm-toggle-insert-cd."
                            vterm-toggle--cd-cmd))))
             (run-hooks 'vterm-toggle-show-hook)))
       (setq vterm-toggle--window-configration (current-window-configuration))
