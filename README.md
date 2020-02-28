@@ -1,3 +1,4 @@
+[![MELPA](https://melpa.org/packages/vterm-toggle-badge.svg)](https://melpa.org/#/vterm-toggle)
 # vterm-toggle Toggle vterm buffer
 
 [emacs-libvterm](https://github.com/akermu/emacs-libvterm) implements a bridge
