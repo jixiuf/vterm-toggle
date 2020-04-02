@@ -87,17 +87,9 @@ for example
 (defvar vterm-toggle--window-configration nil)
 (defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar-local vterm-toggle--dedicated-p nil)
-(defvar vterm-toggle--vterm-buffer-p-function 'vterm-toggle--default-vterm-mode-p
-  "Function to check whether a buffer is vterm-buffer mode.")
 (defvar vterm-toggle--buffer-list nil
   "The list of non-dedicated terminal buffers managed by `vterm-toggle'.")
 (defvar-local vterm-toggle--cd-cmd nil)
-
-(defun vterm-toggle--default-vterm-mode-p(&optional _args)
-  "Check buffer is term-mode-p.
-Optional argument ARGS optional args."
-  (derived-mode-p 'vterm-mode))
-
 
 ;;;###autoload
 (defun vterm-toggle(&optional args)
@@ -105,7 +97,7 @@ Optional argument ARGS optional args."
 Optional argument ARGS ."
   (interactive "P")
   (cond
-   ((funcall vterm-toggle--vterm-buffer-p-function args)
+   ((derived-mode-p 'vterm-mode)
     (vterm-toggle-hide))
    (t
     (vterm-toggle-show nil args))))
@@ -116,7 +108,7 @@ Optional argument ARGS ."
 Optional argument ARGS ."
   (interactive "P")
   (cond
-   ((funcall vterm-toggle--vterm-buffer-p-function args)
+   ((derived-mode-p 'vterm-mode)
     (vterm-toggle-hide args))
    (t
     (vterm-toggle-show t args))))
@@ -127,12 +119,12 @@ Optional argument ARGS ."
   (interactive "P")
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (when (funcall vterm-toggle--vterm-buffer-p-function args)
+      (when (derived-mode-p 'vterm-mode)
         (run-hooks 'vterm-toggle-hide-hook)
         (bury-buffer))))
   (when vterm-toggle--window-configration
     (set-window-configuration vterm-toggle--window-configration))
-  (when (funcall vterm-toggle--vterm-buffer-p-function args)
+  (when (derived-mode-p 'vterm-mode)
     (switch-to-buffer (vterm-toggle--recent-other-buffer))))
 
 (defun vterm-toggle-tramp-get-method-parameter (method param)
@@ -162,13 +154,13 @@ Usually I would bind it in `vterm-mode-map'
   (interactive "P")
   (vterm-toggle-show (not args)))
 
-(defun vterm-toggle-show(&optional make-cd args)
+(defun vterm-toggle-show(&optional make-cd)
   "Show the vterm buffer.
 Optional argument MAKE-CD whether insert a cd command.
 Optional argument ARGS optional args."
   (interactive "P")
   (let* ((shell-buffer (vterm-toggle--get-buffer
-                        make-cd (not vterm-toggle-cd-auto-create-buffer) args))
+                        make-cd (not vterm-toggle-cd-auto-create-buffer)))
          (dir (expand-file-name default-directory))
          cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p cur-method login-cmd)
     (if (ignore-errors (file-remote-p dir))
@@ -184,7 +176,7 @@ Optional argument ARGS optional args."
     (setq cd-cmd (concat " cd " (shell-quote-argument dir)))
     (if shell-buffer
         (progn
-          (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
+          (when (and (not (derived-mode-p 'vterm-mode))
                      (not (get-buffer-window shell-buffer)))
             (setq vterm-toggle--window-configration (current-window-configuration)))
           (if vterm-toggle-fullscreen-p
@@ -275,13 +267,13 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
     (vterm-other-window)))
 
 
-(defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p args)
+(defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p)
   "Get vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
   (if vterm-toggle-use-dedicated-buffer
       (vterm-toggle--get-dedicated-buffer)
-    (vterm-toggle--recent-vterm-buffer make-cd ignore-prompt-p args)))
+    (vterm-toggle--recent-vterm-buffer make-cd ignore-prompt-p)))
 
 (defun vterm-toggle--get-dedicated-buffer()
   "Get dedicated buffer."
@@ -293,7 +285,7 @@ Optional argument ARGS optional args."
       (setq vterm-toggle--dedicated-p t)
       vterm-toggle--vterm-dedicated-buffer)))
 
-(defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p args)
+(defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p)
   "Get recent vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
@@ -307,7 +299,7 @@ Optional argument ARGS optional args."
       (setq buffer-host (system-name)))
     (cl-loop for buf in (buffer-list) do
              (with-current-buffer buf
-               (when (and (funcall vterm-toggle--vterm-buffer-p-function args)
+               (when (and (derived-mode-p 'vterm-mode)
                           (not (eq curbuf buf))
                           (not vterm-toggle--dedicated-p))
                  (cond
@@ -330,7 +322,7 @@ Optional argument ARGS optional args."
   (let (shell-buffer)
     (cl-loop for buf in (buffer-list) do
              (with-current-buffer buf
-               (when (and (not (funcall vterm-toggle--vterm-buffer-p-function args))
+               (when (and (not (derived-mode-p 'vterm-mode))
                           (not (char-equal ?\  (aref (buffer-name) 0))))
                  (setq shell-buffer buf)))
              until shell-buffer)
