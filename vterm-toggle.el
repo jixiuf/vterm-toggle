@@ -98,9 +98,15 @@ Optional argument ARGS ."
   (interactive "P")
   (cond
    ((derived-mode-p 'vterm-mode)
-    (vterm-toggle-hide))
-   (t
-    (vterm-toggle-show nil args))))
+    (if (equal (prefix-numeric-value args) 1)
+        (vterm-toggle-hide)
+      (vterm)))
+   ((equal (prefix-numeric-value args) 1)
+    (vterm-toggle-show))
+   ((equal (prefix-numeric-value args) 4)
+    (let ((vterm-toggle-fullscreen-p
+           (not vterm-toggle-fullscreen-p)))
+      (vterm-toggle-show)))))
 
 ;;;###autoload
 (defun vterm-toggle-cd(&optional args)
@@ -109,9 +115,15 @@ Optional argument ARGS ."
   (interactive "P")
   (cond
    ((derived-mode-p 'vterm-mode)
-    (vterm-toggle-hide args))
-   (t
-    (vterm-toggle-show t args))))
+    (if (equal (prefix-numeric-value args) 1)
+        (vterm-toggle-hide)
+      (vterm-toggle-show t)))
+   ((equal (prefix-numeric-value args) 1)
+    (vterm-toggle-show t))
+   ((equal (prefix-numeric-value args) 4)
+    (let ((vterm-toggle-fullscreen-p
+           (not vterm-toggle-fullscreen-p)))
+      (vterm-toggle-show t)))))
 
 (defun vterm-toggle-hide(&optional args)
   "Hide the vterm buffer.
@@ -156,8 +168,7 @@ Usually I would bind it in `vterm-mode-map'
 
 (defun vterm-toggle-show(&optional make-cd)
   "Show the vterm buffer.
-Optional argument MAKE-CD whether insert a cd command.
-Optional argument ARGS optional args."
+Optional argument MAKE-CD whether insert a cd command."
   (interactive "P")
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer)))
