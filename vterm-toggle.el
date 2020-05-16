@@ -137,6 +137,7 @@ Optional argument ARGS ."
   (when vterm-toggle--window-configration
     (set-window-configuration vterm-toggle--window-configration))
   (when (derived-mode-p 'vterm-mode)
+    (bury-buffer)
     (switch-to-buffer (vterm-toggle--recent-other-buffer))))
 
 (defun vterm-toggle-tramp-get-method-parameter (method param)
