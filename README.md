@@ -139,18 +139,18 @@ buffer to another.
 
 ```
 # vterm-toggle-use-dedicated-buffer
-When  vterm-toggle-use-dedicated-buffer is not nil, you can toggle to a dedidated vterm buffer.
+When  vterm-toggle-use-dedicated-buffer is not nil, you can toggle to a dedicated vterm buffer.
 
-you can toggle to different dedidated buffer for different purpose.
+you can toggle to different dedicated buffer for different purpose.
 For example, I want to replace default `compile` with my `vterm-compile`
 ```
-(defvar vterm-compile-dedidated-buffer nil)
+(defvar vterm-compile-dedicated-buffer nil)
 (defun vterm-compile ()
   (interactive)
   (let ((vterm-toggle-use-dedicated-buffer t)
-        (vterm-toggle--vterm-dedicated-buffer vterm-compile-dedidated-buffer))
+        (vterm-toggle--vterm-dedicated-buffer vterm-compile-dedicated-buffer))
     (with-current-buffer (vterm-toggle-cd)
-      (setq vterm-compile-dedidated-buffer (current-buffer))
+      (setq vterm-compile-dedicated-buffer (current-buffer))
       (rename-buffer "term compile")
       (compilation-shell-minor-mode 1)
       (vterm-send-string compile-command t)
