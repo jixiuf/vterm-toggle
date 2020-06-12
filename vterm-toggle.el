@@ -4,7 +4,7 @@
 ;; Keywords: vterm terminals
 ;; Version: 0.0.3
 ;; URL: https://github.com/jixiuf/vterm-toggle
-;; Package-Requires: ((emacs "25.1") (vterm "0.0.1"))
+;; Package-Requires: ((emacs "25.1") (vterm "0.0.1") (projectile "1.0.0"))
 
 ;; Copyright (C) 2019, jixiuf, all rights reserved.
 
@@ -41,6 +41,7 @@
 (require 'tramp)
 (require 'tramp-sh)
 (require 'vterm)
+(require 'projectile)
 
 (defcustom vterm-toggle-show-hook nil
   "Hooks when swith to vterm buffer."
@@ -56,10 +57,13 @@
   :group 'vterm-toggle
   :type 'boolean)
 
-(defcustom vterm-toggle-use-dedicated-buffer nil
-  "Only toggle to or from dedicated vterm buffer."
-  :group 'vterm-toggle
-  :type 'boolean)
+(defcustom vterm-toggle-scope nil
+  "`projectile' limit the scope only in the current project.
+`dedicated' use the dedicated vterm buffer."
+  :type '(radio
+          (const :tag "all" nil)
+          (const :tag "projectile" projectile)
+          (const :tag "dedicated" dedicated)))
 
 (defcustom vterm-toggle-cd-auto-create-buffer nil
   "If the prompt of recent vterm buffer is not available,
@@ -283,9 +287,16 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
   "Get vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
-  (if vterm-toggle-use-dedicated-buffer
-      (vterm-toggle--get-dedicated-buffer)
-    (vterm-toggle--recent-vterm-buffer make-cd ignore-prompt-p)))
+  (cond
+   ((eq vterm-toggle-scope 'dedicated)
+    (vterm-toggle--get-dedicated-buffer))
+   ((eq vterm-toggle-scope 'projectile)
+    (let* ((project-root (projectile-project-root))
+           (buf (vterm-toggle--recent-vterm-buffer
+                 make-cd ignore-prompt-p project-root)))
+      buf))
+   (t
+    (vterm-toggle--recent-vterm-buffer make-cd ignore-prompt-p))))
 
 (defun vterm-toggle--get-dedicated-buffer()
   "Get dedicated buffer."
@@ -297,7 +308,8 @@ Optional argument ARGS optional args."
       (setq vterm-toggle--dedicated-p t)
       vterm-toggle--vterm-dedicated-buffer)))
 
-(defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p)
+
+(defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p dir)
   "Get recent vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
@@ -313,7 +325,9 @@ Optional argument ARGS optional args."
              (with-current-buffer buf
                (when (and (derived-mode-p 'vterm-mode)
                           (not (eq curbuf buf))
-                          (not vterm-toggle--dedicated-p))
+                          (not vterm-toggle--dedicated-p)
+                          (or (not vterm-toggle-scope)
+                              (equal (projectile-project-root) dir)))
                  (cond
                   ((and  make-cd (derived-mode-p 'vterm-mode))
                    (if (ignore-errors (file-remote-p default-directory))
