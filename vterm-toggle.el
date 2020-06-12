@@ -52,7 +52,7 @@
   :group 'vterm-toggle
   :type 'symbolp)
 
-(defcustom vterm-toggle-fullscreen-p t
+(defcustom vterm-toggle-fullscreen-p nil
   "Open vterm buffer fullscreen or not."
   :group 'vterm-toggle
   :type 'boolean)
