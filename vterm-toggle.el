@@ -60,10 +60,17 @@
 (defcustom vterm-toggle-scope nil
   "`projectile' limit the scope only in the current project.
 `dedicated' use the dedicated vterm buffer."
+  :group 'vterm-toggle
   :type '(radio
           (const :tag "all" nil)
           (const :tag "projectile" projectile)
           (const :tag "dedicated" dedicated)))
+
+(defcustom vterm-toggle-projectile-root t
+  "Create a new vterm buffter at projectile root directory or not.
+it only work  when `vterm-toggle-scope' is `projectile'. "
+  :group 'vterm-toggle
+  :type 'boolean)
 
 (defcustom vterm-toggle-cd-auto-create-buffer nil
   "If the prompt of recent vterm buffer is not available,
@@ -276,11 +283,17 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
     (vterm-send-string vterm-toggle--cd-cmd t)
     (vterm-send-return)))
 
-(defun vterm-toggle--new()
+(defun vterm-toggle--new(&optional buffer-name)
   "New vterm buffer."
-  (if vterm-toggle-fullscreen-p
-      (vterm)
-    (vterm-other-window)))
+  (let ((default-directory default-directory)
+        project-root)
+    (when (and vterm-toggle-projectile-root
+               (eq vterm-toggle-scope 'projectile))
+      (setq project-root (projectile-project-root) )
+      (when project-root (setq default-directory project-root)))
+    (if vterm-toggle-fullscreen-p
+        (vterm buffer-name)
+      (vterm-other-window buffer-name))))
 
 
 (defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p)
