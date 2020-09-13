@@ -59,11 +59,13 @@
 
 (defcustom vterm-toggle-scope nil
   "`projectile' limit the scope only in the current project.
+`frame' limit the scope only not in other frame.
 `dedicated' use the dedicated vterm buffer."
   :group 'vterm-toggle
   :type '(radio
           (const :tag "all" nil)
           (const :tag "projectile" projectile)
+          (const :tag "frame" frame)
           (const :tag "dedicated" dedicated)))
 
 (defcustom vterm-toggle-projectile-root t
@@ -322,12 +324,19 @@ Optional argument ARGS optional args."
       vterm-toggle--vterm-dedicated-buffer)))
 
 
+(defun vterm-toggle--not-in-other-frame(frame buf)
+  (let ((win (get-buffer-window buf t)))
+    (if win
+        (eq frame (window-frame win))
+      t)))
+
 (defun vterm-toggle--recent-vterm-buffer(&optional make-cd ignore-prompt-p dir)
   "Get recent vterm buffer.
 Optional argument MAKE-CD make cd or not.
 Optional argument ARGS optional args."
   (let ((shell-buffer)
         (curbuf (current-buffer))
+        (curframe (window-frame))
         buffer-host
         vterm-host)
     (if (ignore-errors (file-remote-p default-directory))
@@ -340,7 +349,10 @@ Optional argument ARGS optional args."
                           (not (eq curbuf buf))
                           (not vterm-toggle--dedicated-p)
                           (or (not vterm-toggle-scope)
-                              (equal (projectile-project-root) dir)))
+                              (and (eq vterm-toggle-scope 'frame)
+                                   (vterm-toggle--not-in-other-frame curframe buf))
+                              (and (eq vterm-toggle-scope 'projectile)
+                                   (equal (projectile-project-root) dir))))
                  (cond
                   ((and  make-cd (derived-mode-p 'vterm-mode))
                    (if (ignore-errors (file-remote-p default-directory))
