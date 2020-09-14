@@ -4,7 +4,7 @@
 ;; Keywords: vterm terminals
 ;; Version: 0.0.3
 ;; URL: https://github.com/jixiuf/vterm-toggle
-;; Package-Requires: ((emacs "25.1") (vterm "0.0.1") (projectile "1.0.0"))
+;; Package-Requires: ((emacs "25.1") (vterm "0.0.1"))
 
 ;; Copyright (C) 2019, jixiuf, all rights reserved.
 
@@ -41,7 +41,6 @@
 (require 'tramp)
 (require 'tramp-sh)
 (require 'vterm)
-(require 'projectile)
 
 (defcustom vterm-toggle-show-hook nil
   "Hooks when swith to vterm buffer."
@@ -138,9 +137,8 @@ Optional argument ARGS ."
            (not vterm-toggle-fullscreen-p)))
       (vterm-toggle-show t)))))
 
-(defun vterm-toggle-hide(&optional args)
-  "Hide the vterm buffer.
-Optional argument ARGS ."
+(defun vterm-toggle-hide (&optional _args)
+  "Hide the vterm buffer."
   (interactive "P")
   (dolist (buf (buffer-list))
     (with-current-buffer buf
@@ -290,6 +288,7 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
   (let ((default-directory default-directory)
         project-root)
     (when (and vterm-toggle-projectile-root
+               (fboundp 'projectile-project-root)
                (eq vterm-toggle-scope 'projectile))
       (setq project-root (projectile-project-root) )
       (when project-root (setq default-directory project-root)))
@@ -305,7 +304,8 @@ Optional argument ARGS optional args."
   (cond
    ((eq vterm-toggle-scope 'dedicated)
     (vterm-toggle--get-dedicated-buffer))
-   ((eq vterm-toggle-scope 'projectile)
+   ((and (fboundp 'projectile-project-root)
+         (eq vterm-toggle-scope 'projectile))
     (let* ((project-root (projectile-project-root))
            (buf (vterm-toggle--recent-vterm-buffer
                  make-cd ignore-prompt-p project-root)))
@@ -352,6 +352,7 @@ Optional argument ARGS optional args."
                               (and (eq vterm-toggle-scope 'frame)
                                    (vterm-toggle--not-in-other-frame curframe buf))
                               (and (eq vterm-toggle-scope 'projectile)
+                                   (fboundp 'projectile-project-root)
                                    (equal (projectile-project-root) dir))))
                  (cond
                   ((and  make-cd (derived-mode-p 'vterm-mode))
@@ -367,7 +368,7 @@ Optional argument ARGS optional args."
              until shell-buffer)
     shell-buffer))
 
-(defun vterm-toggle--recent-other-buffer(&optional args)
+(defun vterm-toggle--recent-other-buffer(&optional _args)
   "Get last viewed buffer.
 Optional argument ARGS optional args."
   (let (shell-buffer)
