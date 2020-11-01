@@ -82,7 +82,11 @@ it only work  when `vterm-toggle-scope' is `projectile'. "
 (defcustom vterm-toggle-reset-window-configration-after-exit nil
   "Whether reset window configuration after vterm buffer is killed."
   :group 'vterm-toggle
-  :type 'boolean)
+  :type '(choice
+          (const :tag "Do nothing" nil)
+          (const :tag "Reset window configration after exit" t)
+          (const :tag "Kill Window only" kill-window-only)))
+
 
 (defcustom vterm-toggle-after-remote-login-function nil
   "Those functions are called one by one after open a ssh session.
@@ -384,10 +388,12 @@ Optional argument ARGS optional args."
   "Vterm exit hook."
   (when (derived-mode-p 'vterm-mode)
     (setq vterm-toggle--buffer-list
-	      (delq (current-buffer) vterm-toggle--buffer-list))
-    (when (and vterm-toggle-reset-window-configration-after-exit
-               vterm-toggle--window-configration)
-      (set-window-configuration vterm-toggle--window-configration))))
+          (delq (current-buffer) vterm-toggle--buffer-list))
+    (if (eq vterm-toggle-reset-window-configration-after-exit 'kill-window-only)
+        (quit-window)
+      (when (and vterm-toggle-reset-window-configration-after-exit
+                 vterm-toggle--window-configration)
+        (set-window-configuration vterm-toggle--window-configration)))))
 
 (add-hook 'kill-buffer-hook #'vterm-toggle--exit-hook)
 ;; (add-hook 'vterm-exit-functions #'vterm-toggle--exit-hook)
