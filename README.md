@@ -61,7 +61,10 @@ And you can bind
 ```
 (define-key vterm-mode-map [(control return)]   #'vterm-toggle-insert-cd)
 ```
+## vterm-toggle-reset-window-configration-after-exit
 
+`t` Reset window configuration after vterm buffer is killed.
+`'kill-window-only` Kill Window only.
 
 ## show vterm buffer in current window
 ```
