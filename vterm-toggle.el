@@ -371,7 +371,10 @@ Optional argument ARGS optional args."
     shell-buffer))
 (defun vterm-toggle--project-root()
   (let ((proj (project-current)))
-    (when proj (project-root proj))))
+    (when proj
+      (if (fboundp 'project-root)
+          (project-root proj)
+        (car (project-roots proj))))))
 
 (defun vterm-toggle--recent-other-buffer(&optional _args)
   "Get last viewed buffer.
