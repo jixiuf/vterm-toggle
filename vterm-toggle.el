@@ -57,19 +57,19 @@
   :type 'boolean)
 
 (defcustom vterm-toggle-scope nil
-  "`projectile' limit the scope only in the current project.
+  "`project' limit the scope only in the current project.
 `frame' limit the scope only not in other frame.
 `dedicated' use the dedicated vterm buffer."
   :group 'vterm-toggle
   :type '(radio
           (const :tag "all" nil)
-          (const :tag "projectile" projectile)
+          (const :tag "project" project)
           (const :tag "frame" frame)
           (const :tag "dedicated" dedicated)))
 
-(defcustom vterm-toggle-projectile-root t
-  "Create a new vterm buffter at projectile root directory or not.
-it only work  when `vterm-toggle-scope' is `projectile'. "
+(defcustom vterm-toggle-project-root t
+  "Create a new vterm buffter at project root directory or not.
+it only work  when `vterm-toggle-scope' is `project'. "
   :group 'vterm-toggle
   :type 'boolean)
 
@@ -166,11 +166,11 @@ If the `tramp-methods' entry does not exist, return NIL."
     (defun tramp-get-sh-extra-args (shell)
       "Find extra args for SHELL."
       (let ((alist tramp-sh-extra-args)
-	        item extra-args)
+            item extra-args)
         (while (and alist (null extra-args))
           (setq item (pop alist))
           (when (string-match-p (car item) shell)
-	        (setq extra-args (cdr item))))
+            (setq extra-args (cdr item))))
         extra-args))))
 
 (defun vterm-toggle-cd-show(&optional  args)
@@ -240,15 +240,15 @@ Optional argument MAKE-CD whether insert a cd command."
                  (login-shell-args (tramp-get-sh-extra-args login-shell))
                  ;; (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-remote-shell)
                  (spec (format-spec-make
-			            ?h cur-host ?u cur-user ?p cur-port ?c ""
-			            ?l (concat login-shell " " login-shell-args)))
+                        ?h cur-host ?u cur-user ?p cur-port ?c ""
+                        ?l (concat login-shell " " login-shell-args)))
                  (cmd
                   (concat login-cmd " "
                           (mapconcat
-		                   (lambda (x)
-			                 (setq x (mapcar (lambda (y) (format-spec y spec)) x))
-			                 (unless (member "" x) (string-join x " ")))
-		                   login-opts " "))))
+                           (lambda (x)
+                             (setq x (mapcar (lambda (y) (format-spec y spec)) x))
+                             (unless (member "" x) (string-join x " ")))
+                           login-opts " "))))
             (vterm-send-string cmd)
             (vterm-send-return)
             (run-hook-with-args 'vterm-toggle-after-remote-login-function
@@ -256,10 +256,10 @@ Optional argument MAKE-CD whether insert a cd command."
           (vterm-send-string cd-cmd)
           (vterm-send-return)
           (setq default-directory
-	            (file-name-as-directory
-	             (if (and (string= cur-host (system-name))
+                (file-name-as-directory
+                 (if (and (string= cur-host (system-name))
                           (string= cur-user (user-real-login-name)))
-		             (expand-file-name dir)
+                     (expand-file-name dir)
                    (concat "/" cur-method ":" (if (string-empty-p cur-user) ""
                                                 (concat cur-user "@") )
                            cur-host ":" dir)))))
@@ -291,11 +291,11 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
   "New vterm buffer."
   (let ((default-directory default-directory)
         project-root)
-    (when (and vterm-toggle-projectile-root
-               (fboundp 'projectile-project-root)
-               (eq vterm-toggle-scope 'projectile))
-      (setq project-root (projectile-project-root) )
-      (when project-root (setq default-directory project-root)))
+    (when (and vterm-toggle-project-root
+               (eq vterm-toggle-scope 'project))
+      (setq project-root (vterm-toggle--project-root))
+      (when project-root
+        (setq default-directory project-root)))
     (if vterm-toggle-fullscreen-p
         (vterm buffer-name)
       (vterm-other-window buffer-name))))
@@ -308,9 +308,8 @@ Optional argument ARGS optional args."
   (cond
    ((eq vterm-toggle-scope 'dedicated)
     (vterm-toggle--get-dedicated-buffer))
-   ((and (fboundp 'projectile-project-root)
-         (eq vterm-toggle-scope 'projectile))
-    (let* ((project-root (projectile-project-root))
+   ((eq vterm-toggle-scope 'project)
+    (let* ((project-root (vterm-toggle--project-root))
            (buf (vterm-toggle--recent-vterm-buffer
                  make-cd ignore-prompt-p project-root)))
       buf))
@@ -355,9 +354,8 @@ Optional argument ARGS optional args."
                           (or (not vterm-toggle-scope)
                               (and (eq vterm-toggle-scope 'frame)
                                    (vterm-toggle--not-in-other-frame curframe buf))
-                              (and (eq vterm-toggle-scope 'projectile)
-                                   (fboundp 'projectile-project-root)
-                                   (equal (projectile-project-root) dir))))
+                              (and (eq vterm-toggle-scope 'project)
+                                   (equal (vterm-toggle--project-root) dir))))
                  (cond
                   ((and  make-cd (derived-mode-p 'vterm-mode))
                    (if (ignore-errors (file-remote-p default-directory))
@@ -371,6 +369,9 @@ Optional argument ARGS optional args."
                   (t (setq shell-buffer buf)))))
              until shell-buffer)
     shell-buffer))
+(defun vterm-toggle--project-root()
+  (let ((proj (project-current)))
+    (when proj (project-root proj))))
 
 (defun vterm-toggle--recent-other-buffer(&optional _args)
   "Get last viewed buffer.
@@ -410,13 +411,13 @@ If DIRECTION `backward', switch to the previous term.
 Option OFFSET for skip OFFSET number term buffer."
   (if vterm-toggle--buffer-list
       (let ((buffer-list-len (length vterm-toggle--buffer-list))
-	        (index (cl-position (current-buffer) vterm-toggle--buffer-list)))
-	    (if index
-	        (let ((target-index (if (eq direction 'forward)
-				                    (mod (+ index offset) buffer-list-len)
-				                  (mod (- index offset) buffer-list-len))))
-	          (switch-to-buffer (nth target-index vterm-toggle--buffer-list)))
-	      (switch-to-buffer (car vterm-toggle--buffer-list))))
+            (index (cl-position (current-buffer) vterm-toggle--buffer-list)))
+        (if index
+            (let ((target-index (if (eq direction 'forward)
+                                    (mod (+ index offset) buffer-list-len)
+                                  (mod (- index offset) buffer-list-len))))
+              (switch-to-buffer (nth target-index vterm-toggle--buffer-list)))
+          (switch-to-buffer (car vterm-toggle--buffer-list))))
     nil))
 
 ;;;###autoload
