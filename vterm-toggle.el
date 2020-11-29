@@ -87,6 +87,13 @@ it only work  when `vterm-toggle-scope' is `project'. "
           (const :tag "Reset window configration after exit" t)
           (const :tag "Kill Window only" kill-window-only)))
 
+(defcustom vterm-toggle-hide-method 'delete-window
+  "How to hide the vterm buffer"
+  :group 'vterm-toggle
+  :type '(choice
+          (const :tag "Toggle without closing the vterm window" nil)
+          (const :tag "Reset Window configration" reset-window-configration)
+          (const :tag "Delete window" delete-window)))
 
 (defcustom vterm-toggle-after-remote-login-function nil
   "Those functions are called one by one after open a ssh session.
@@ -144,16 +151,19 @@ Optional argument ARGS ."
 (defun vterm-toggle-hide (&optional _args)
   "Hide the vterm buffer."
   (interactive "P")
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (derived-mode-p 'vterm-mode)
-        (run-hooks 'vterm-toggle-hide-hook)
-        (bury-buffer))))
-  (when vterm-toggle--window-configration
-    (set-window-configuration vterm-toggle--window-configration))
-  (when (derived-mode-p 'vterm-mode)
-    (bury-buffer)
-    (switch-to-buffer (vterm-toggle--recent-other-buffer))))
+  (cond
+   ((eq vterm-toggle-hide-method 'reset-window-configration)
+    (when vterm-toggle--window-configration
+      (set-window-configuration vterm-toggle--window-configration)))
+   ((eq vterm-toggle-hide-method 'delete-window)
+    (when (window-deletable-p)
+      (delete-window)))
+   ((not vterm-toggle-hide-method)
+    (let ((buf (vterm-toggle--recent-other-buffer)))
+      (when buf
+        (if (get-buffer-window buf)
+            (select-window (get-buffer-window buf))
+          (switch-to-buffer-other-window buf)))))))
 
 (defun vterm-toggle-tramp-get-method-parameter (method param)
   "Return the method parameter PARAM.
@@ -210,7 +220,9 @@ Optional argument MAKE-CD whether insert a cd command."
               (progn
                 (delete-other-windows)
                 (switch-to-buffer shell-buffer))
-            (pop-to-buffer shell-buffer))
+            (if (eq major-mode 'vterm-mode)
+                (switch-to-buffer shell-buffer)
+              (pop-to-buffer shell-buffer)))
           (with-current-buffer shell-buffer
             (when (derived-mode-p 'vterm-mode)
               (setq vterm-toggle--cd-cmd cd-cmd)
@@ -230,7 +242,8 @@ Optional argument MAKE-CD whether insert a cd command."
                   (message "You can insert '%s' by M-x:vterm-toggle-insert-cd."
                            vterm-toggle--cd-cmd))))
             (run-hooks 'vterm-toggle-show-hook)))
-      (setq vterm-toggle--window-configration (current-window-configuration))
+      (unless (eq major-mode 'vterm-mode)
+        (setq vterm-toggle--window-configration (current-window-configuration)))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
         (when remote-p
@@ -298,7 +311,9 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
         (setq default-directory project-root)))
     (if vterm-toggle-fullscreen-p
         (vterm buffer-name)
-      (vterm-other-window buffer-name))))
+      (if (eq major-mode 'vterm-mode)
+          (vterm buffer-name)
+          (vterm-other-window buffer-name)))))
 
 
 (defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p)

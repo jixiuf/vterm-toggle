@@ -66,6 +66,11 @@ And you can bind
 `t` Reset window configuration after vterm buffer is killed.
 `'kill-window-only` Kill Window only.
 
+## vterm-toggle-hide-method
+1. `delete-window`  Delete vterm window
+2. `nil`  Toggle without closing the vterm window, just jump back-and-forth
+    between vterm and a code buffer.
+3. `reset-window-configration`  Reset window configration
 ## show vterm buffer in current window
 ```
 (setq vterm-toggle-fullscreen-p nil)
