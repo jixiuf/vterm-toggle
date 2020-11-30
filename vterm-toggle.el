@@ -156,8 +156,9 @@ Optional argument ARGS ."
     (when vterm-toggle--window-configration
       (set-window-configuration vterm-toggle--window-configration)))
    ((eq vterm-toggle-hide-method 'delete-window)
-    (when (window-deletable-p)
-      (delete-window)))
+    (if (window-deletable-p)
+        (delete-window)
+      (quit-window)))
    ((not vterm-toggle-hide-method)
     (let ((buf (vterm-toggle--recent-other-buffer)))
       (when buf
@@ -423,7 +424,9 @@ Optional argument ARGS optional args."
     (setq vterm-toggle--buffer-list
           (delq (current-buffer) vterm-toggle--buffer-list))
     (if (eq vterm-toggle-reset-window-configration-after-exit 'kill-window-only)
-        (when (window-deletable-p) (delete-window))
+        (if (window-deletable-p)
+            (delete-window)
+          (quit-window))
       (when (and vterm-toggle-reset-window-configration-after-exit
                  vterm-toggle--window-configration)
         (set-window-configuration vterm-toggle--window-configration)))))
