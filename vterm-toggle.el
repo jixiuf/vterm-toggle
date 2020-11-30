@@ -221,7 +221,7 @@ Optional argument MAKE-CD whether insert a cd command."
                 (delete-other-windows)
                 (switch-to-buffer shell-buffer))
             (if (eq major-mode 'vterm-mode)
-                (switch-to-buffer shell-buffer)
+                (switch-to-buffer shell-buffer nil t)
               (pop-to-buffer shell-buffer)))
           (with-current-buffer shell-buffer
             (when (derived-mode-p 'vterm-mode)
@@ -312,7 +312,8 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
     (if vterm-toggle-fullscreen-p
         (vterm buffer-name)
       (if (eq major-mode 'vterm-mode)
-          (vterm buffer-name)
+          (let ((display-buffer-alist nil))
+            (vterm buffer-name))
           (vterm-other-window buffer-name)))))
 
 
