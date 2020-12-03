@@ -197,6 +197,8 @@ Usually I would bind it in `vterm-mode-map'
   "Show the vterm buffer.
 Optional argument MAKE-CD whether insert a cd command."
   (interactive "P")
+  (when (eq vterm-toggle-scope 'projectile)
+    (warn "the value of `vterm-toggle-scope' is 'projectile, please change it to 'project"))
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer)))
          (dir (expand-file-name default-directory))
