@@ -240,7 +240,7 @@ Optional argument MAKE-CD whether insert a cd command."
                 (vterm-send-C-a)
                 (vterm-send-C-k)
                 (sleep-for 0.01)
-                (if (vterm-toggle--accept-cmd)
+                (if (vterm-cursor-in-command-buffer-p)
                     (vterm-toggle-insert-cd)
                   (message "You can insert '%s' by M-x:vterm-toggle-insert-cd."
                            vterm-toggle--cd-cmd))))
@@ -382,24 +382,12 @@ Optional argument ARGS optional args."
                          (setq vterm-host host))
                      (setq vterm-host (system-name)))
                    (when (and (or ignore-prompt-p
-                                  (vterm-toggle--accept-cmd))
+                                  (vterm-cursor-in-command-buffer-p))
                               (equal buffer-host vterm-host))
                      (setq shell-buffer buf)))
                   (t (setq shell-buffer buf)))))
              until shell-buffer)
     shell-buffer))
-
-(defun vterm-toggle--accept-cmd ()
-  "Make sure vterm can input new command."
-  (or (vterm--at-prompt-p)
-      (save-excursion
-        (vterm-reset-cursor-point)
-        (let ((promp-pt (vterm--get-prompt-point))
-              eol)
-          (when promp-pt
-            (goto-char promp-pt)
-            (setq eol (vterm--get-end-of-line))
-            (<= promp-pt (vterm--get-cursor-point) eol))))))
 
 (defun vterm-toggle--project-root()
   (let ((proj (project-current)))
