@@ -151,6 +151,7 @@ Optional argument ARGS ."
 (defun vterm-toggle-hide (&optional _args)
   "Hide the vterm buffer."
   (interactive "P")
+  (run-hooks 'vterm-toggle-hide-hook)
   (cond
    ((eq vterm-toggle-hide-method 'reset-window-configration)
     (when vterm-toggle--window-configration
