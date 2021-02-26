@@ -91,8 +91,10 @@ it only work  when `vterm-toggle-scope' is `project'. "
   "How to hide the vterm buffer"
   :group 'vterm-toggle
   :type '(choice
-          (const :tag "Toggle without closing the vterm window" nil)
+          (const :tag "Toggle without closing the vterm window(focus other window)" nil)
           (const :tag "Reset Window configration" reset-window-configration)
+          (const :tag "Bury All vterm buffer" bury-all-vterm-buffer)
+          (const :tag "Quit window" quit-window)
           (const :tag "Delete window" delete-window)))
 
 (defcustom vterm-toggle-after-remote-login-function nil
@@ -156,16 +158,27 @@ Optional argument ARGS ."
    ((eq vterm-toggle-hide-method 'reset-window-configration)
     (when vterm-toggle--window-configration
       (set-window-configuration vterm-toggle--window-configration)))
+   ((eq vterm-toggle-hide-method 'bury-all-vterm-buffer)
+    (vterm-toggle--bury-all-vterm))
+   ((eq vterm-toggle-hide-method 'quit-window)
+    (quit-window))
    ((eq vterm-toggle-hide-method 'delete-window)
     (if (window-deletable-p)
         (delete-window)
-      (quit-window)))
+      (vterm-toggle--bury-all-vterm)))
    ((not vterm-toggle-hide-method)
     (let ((buf (vterm-toggle--recent-other-buffer)))
       (when buf
         (if (get-buffer-window buf)
             (select-window (get-buffer-window buf))
           (switch-to-buffer-other-window buf)))))))
+
+(defun vterm-toggle--bury-all-vterm ()
+  "Bury all vterm buffer in order."
+  (dolist (buf (buffer-list))
+      (when (eq (buffer-local-value 'major-mode buf) 'vterm-mode)
+        (with-current-buffer buf
+          (bury-buffer)))))
 
 (defun vterm-toggle-tramp-get-method-parameter (method param)
   "Return the method parameter PARAM.
@@ -219,6 +232,7 @@ Optional argument MAKE-CD whether insert a cd command."
         (progn
           (when (and (not (derived-mode-p 'vterm-mode))
                      (not (get-buffer-window shell-buffer)))
+            (message "setwin")
             (setq vterm-toggle--window-configration (current-window-configuration)))
           (if vterm-toggle-fullscreen-p
               (progn
@@ -247,6 +261,7 @@ Optional argument MAKE-CD whether insert a cd command."
                            vterm-toggle--cd-cmd))))
             (run-hooks 'vterm-toggle-show-hook)))
       (unless (eq major-mode 'vterm-mode)
+        (message "setwin")
         (setq vterm-toggle--window-configration (current-window-configuration)))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
