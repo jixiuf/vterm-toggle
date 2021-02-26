@@ -239,7 +239,6 @@ Optional argument MAKE-CD whether insert a cd command."
         (progn
           (when (and (not (derived-mode-p 'vterm-mode))
                      (not (get-buffer-window shell-buffer)))
-            (message "setwin")
             (setq vterm-toggle--window-configration (current-window-configuration)))
           (if vterm-toggle-fullscreen-p
               (progn
@@ -268,7 +267,6 @@ Optional argument MAKE-CD whether insert a cd command."
                            vterm-toggle--cd-cmd))))
             (run-hooks 'vterm-toggle-show-hook)))
       (unless (eq major-mode 'vterm-mode)
-        (message "setwin")
         (setq vterm-toggle--window-configration (current-window-configuration)))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
