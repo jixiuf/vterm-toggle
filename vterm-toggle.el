@@ -40,7 +40,14 @@
 (require 'cl-lib)
 (require 'tramp)
 (require 'tramp-sh)
-(require 'vterm)
+
+(declare-function vterm "vterm")
+(declare-function vterm-send-C-a "vterm")
+(declare-function vterm-send-C-k "vterm")
+(declare-function vterm-cursor-in-command-buffer-p "vterm")
+(declare-function vterm-send-string "vterm")
+(declare-function vterm-send-return "vterm")
+(declare-function vterm-other-window "vterm")
 
 (defcustom vterm-toggle-show-hook nil
   "Hooks when swith to vterm buffer."
@@ -476,6 +483,8 @@ If OFFSET is `non-nil', will goto next term buffer with OFFSET."
   (vterm-toggle--switch 'backward (or offset 1)))
 
 (provide 'vterm-toggle)
+
+(require 'vterm nil t)                  ; https://github.com/jixiuf/vterm-toggle/issues/24
 
 ;; Local Variables:
 ;; coding: utf-8
