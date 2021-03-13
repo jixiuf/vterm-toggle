@@ -132,7 +132,7 @@ Optional argument ARGS ."
    ((derived-mode-p 'vterm-mode)
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
-      (vterm)))
+      (vterm vterm-buffer-name)))
    ((equal (prefix-numeric-value args) 1)
     (vterm-toggle-show))
    ((equal (prefix-numeric-value args) 4)
@@ -327,6 +327,7 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
 (defun vterm-toggle--new(&optional buffer-name)
   "New vterm buffer."
   (let ((default-directory default-directory)
+        (buffer-name (or buffer-name vterm-buffer-name))
         project-root)
     (when (and vterm-toggle-project-root
                (eq vterm-toggle-scope 'project))
