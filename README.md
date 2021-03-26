@@ -1,8 +1,7 @@
 [![MELPA](https://melpa.org/packages/vterm-toggle-badge.svg)](https://melpa.org/#/vterm-toggle)
 # vterm-toggle Toggle vterm buffer
 
-[emacs-libvterm](https://github.com/akermu/emacs-libvterm) implements a bridge
-to libvterm to display a terminal in a emacs buffer.
+[emacs-libvterm](https://github.com/akermu/emacs-libvterm) is fully-fledged terminal emulator inside GNU Emacs based on libvterm.
 
 This package provides the command `vterm-toggle` which toggles between the vterm
 buffer and whatever buffer you are editing.
