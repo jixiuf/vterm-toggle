@@ -288,6 +288,7 @@ Optional argument MAKE-CD whether insert a cd command."
                            login-opts " "))))
             (vterm-send-string cmd)
             (vterm-send-return)
+            (sleep-for 0.02)
             (run-hook-with-args 'vterm-toggle-after-remote-login-function
                                 method cur-user cur-host cur-port dir))
           (vterm-send-string cd-cmd)
