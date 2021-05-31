@@ -129,7 +129,8 @@ for example
 Optional argument ARGS ."
   (interactive "P")
   (cond
-   ((derived-mode-p 'vterm-mode)
+   ((or (derived-mode-p 'vterm-mode)
+        (vterm-toggle--get-window))
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
       (vterm vterm-buffer-name)))
@@ -146,7 +147,8 @@ Optional argument ARGS ."
 Optional argument ARGS ."
   (interactive "P")
   (cond
-   ((derived-mode-p 'vterm-mode)
+   ((or (derived-mode-p 'vterm-mode)
+        (vterm-toggle--get-window))
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
       (vterm-toggle-show t)))
@@ -160,6 +162,8 @@ Optional argument ARGS ."
 (defun vterm-toggle-hide (&optional _args)
   "Hide the vterm buffer."
   (interactive "P")
+  (or (derived-mode-p 'vterm-mode)
+      (select-window (vterm-toggle--get-window)))
   (run-hooks 'vterm-toggle-hide-hook)
   (cond
    ((eq vterm-toggle-hide-method 'reset-window-configration)
@@ -180,12 +184,20 @@ Optional argument ARGS ."
             (select-window (get-buffer-window buf))
           (switch-to-buffer-other-window buf)))))))
 
+(defun vterm-toggle--get-window()
+  "Get the vterm window which is visible (active or inactive)."
+  (cl-find-if #'(lambda(w)
+                  (provided-mode-derived-p
+                   (buffer-local-value 'major-mode (window-buffer w))
+                   'vterm-mode))
+              (window-list)))
+
 (defun vterm-toggle--bury-all-vterm ()
   "Bury all vterm buffer in order."
   (dolist (buf (buffer-list))
-      (when (eq (buffer-local-value 'major-mode buf) 'vterm-mode)
-        (with-current-buffer buf
-          (bury-buffer)))))
+    (when (eq (buffer-local-value 'major-mode buf) 'vterm-mode)
+      (with-current-buffer buf
+        (bury-buffer)))))
 
 (defun vterm-toggle-tramp-get-method-parameter (method param)
   "Return the method parameter PARAM.
@@ -340,7 +352,7 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
       (if (eq major-mode 'vterm-mode)
           (let ((display-buffer-alist nil))
             (vterm buffer-name))
-          (vterm-other-window buffer-name)))))
+        (vterm-other-window buffer-name)))))
 
 
 (defun vterm-toggle--get-buffer(&optional make-cd ignore-prompt-p)
