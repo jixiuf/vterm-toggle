@@ -48,7 +48,6 @@
 (declare-function vterm-send-string "vterm")
 (declare-function vterm-send-return "vterm")
 (declare-function vterm-other-window "vterm")
-(declare-variable vterm-other-window "vterm")
 (defvar vterm-buffer-name  "*vterm*")
 
 (defcustom vterm-toggle-show-hook nil
