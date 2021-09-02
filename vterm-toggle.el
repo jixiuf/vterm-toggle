@@ -105,18 +105,6 @@ it only work  when `vterm-toggle-scope' is `project'. "
           (const :tag "Quit window" quit-window)
           (const :tag "Delete window" delete-window)))
 
-(defcustom vterm-toggle-after-remote-login-function nil
-  "Those functions are called one by one after open a ssh session.
-`vterm-toggle-after-remote-login-function' should be a symbol, a hook variable.
-The value of HOOK may be nil, a function, or a list of functions.
-for example
-   (defun vterm-toggle-after-ssh-login (method user host port localdir)
-    (when (equal host \"my-host\")
-        (vterm-send-string \"zsh\" t)
-        (vterm-send-return)))"
-  :group 'vterm-toggle
-  :type 'hook)
-
 (defvar vterm-toggle--window-configration nil)
 (defvar vterm-toggle--vterm-dedicated-buffer nil)
 (defvar-local vterm-toggle--dedicated-p nil)
@@ -236,17 +224,12 @@ Optional argument MAKE-CD whether insert a cd command."
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer)))
          (dir (expand-file-name default-directory))
-         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port remote-p cur-method login-cmd)
+         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port   )
     (if (ignore-errors (file-remote-p dir))
         (with-parsed-tramp-file-name dir nil
-          (setq remote-p t)
           (setq cur-host host)
-          (setq cur-method (tramp-find-method method user cur-host))
-          (setq cur-user (or (tramp-find-user cur-method user cur-host) ""))
-          (setq cur-port (or port ""))
           (setq dir localname))
       (setq cur-host (system-name)))
-    (setq login-cmd (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-login-program))
     (setq cd-cmd (concat " cd " (shell-quote-argument dir)))
     (if shell-buffer
         (progn
@@ -283,37 +266,6 @@ Optional argument MAKE-CD whether insert a cd command."
         (setq vterm-toggle--window-configration (current-window-configuration)))
       (with-current-buffer (setq shell-buffer (vterm-toggle--new))
         (vterm-toggle--wait-prompt)
-        (when remote-p
-          (let* ((method  (if (string-equal login-cmd "ssh") "ssh" cur-method))
-                 (login-opts (vterm-toggle-tramp-get-method-parameter method 'tramp-login-args))
-                 (login-shell (vterm-toggle-tramp-get-method-parameter method 'tramp-remote-shell))
-                 (login-shell-args (tramp-get-sh-extra-args login-shell))
-                 ;; (vterm-toggle-tramp-get-method-parameter cur-method 'tramp-remote-shell)
-                 (spec (format-spec-make
-                        ?h cur-host ?u cur-user ?p cur-port ?c ""
-                        ?l (concat login-shell " " login-shell-args)))
-                 (cmd
-                  (concat login-cmd " "
-                          (mapconcat
-                           (lambda (x)
-                             (setq x (mapcar (lambda (y) (format-spec y spec)) x))
-                             (unless (member "" x) (string-join x " ")))
-                           login-opts " "))))
-            (vterm-send-string cmd)
-            (vterm-send-return)
-            (sleep-for 0.02)
-            (run-hook-with-args 'vterm-toggle-after-remote-login-function
-                                method cur-user cur-host cur-port dir))
-          (vterm-send-string cd-cmd)
-          (vterm-send-return)
-          (setq default-directory
-                (file-name-as-directory
-                 (if (and (string= cur-host (system-name))
-                          (string= cur-user (user-real-login-name)))
-                     (expand-file-name dir)
-                   (concat "/" cur-method ":" (if (string-empty-p cur-user) ""
-                                                (concat cur-user "@") )
-                           cur-host ":" dir)))))
         (when vterm-toggle-fullscreen-p
           (delete-other-windows))
         (run-hooks 'vterm-toggle-show-hook)))

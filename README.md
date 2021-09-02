@@ -12,9 +12,8 @@ buffer and whatever buffer you are editing.
  3. When done in the vterm-buffer you are returned to the same window
     configuration you had before you toggled to the shell.
  4. If you desire, you automagically get a `cd` command in the shell to the
-    directory where your current buffers file exists(`even remote file through
-    tramp is supported `); just call `vterm-toggle-cd` instead of
-    `vterm-toggle`.
+    directory where your current buffers file exists, just call `vterm-toggle-cd`
+    instead of `vterm-toggle`.
 
 ```
 (global-set-key [f2] 'vterm-toggle)
@@ -29,22 +28,6 @@ buffer and whatever buffer you are editing.
 ;Switch to previous vterm buffer
 (define-key vterm-mode-map (kbd "s-p")   'vterm-toggle-backward)
 
-```
-##  open a terminal in a specified remote location
-```
-(defun myssh()
-    (interactive)
-    (let ((default-directory "/ssh:root@host:~"))
-      (vterm-toggle-cd)))
-
-```
-With https://github.com/emacs-pe/docker-tramp.el
-you can open a terminal in a specified docker container
-```
-(defun mydocker()
-    (interactive)
-    (let ((default-directory "/docker:root@697a9e2789c3:/root/"))
-      (vterm-toggle-cd)))
 ```
 
 # Customize
