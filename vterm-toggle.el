@@ -119,7 +119,8 @@ Optional argument ARGS ."
   (interactive "P")
   (cond
    ((or (derived-mode-p 'vterm-mode)
-        (vterm-toggle--get-window))
+        (and (vterm-toggle--get-window)
+             vterm-toggle-hide-method))
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
       (vterm vterm-buffer-name)))
@@ -137,7 +138,8 @@ Optional argument ARGS ."
   (interactive "P")
   (cond
    ((or (derived-mode-p 'vterm-mode)
-        (vterm-toggle--get-window))
+        (and (vterm-toggle--get-window)
+             vterm-toggle-hide-method))
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
       (vterm-toggle-show t)))
@@ -171,7 +173,9 @@ Optional argument ARGS ."
       (when buf
         (if (get-buffer-window buf)
             (select-window (get-buffer-window buf))
-          (switch-to-buffer-other-window buf)))))))
+          (if vterm-toggle-fullscreen-p
+              (switch-to-buffer buf)
+            (switch-to-buffer-other-window buf))))))))
 
 (defun vterm-toggle--get-window()
   "Get the vterm window which is visible (active or inactive)."
