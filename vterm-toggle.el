@@ -123,13 +123,16 @@ Optional argument ARGS ."
              vterm-toggle-hide-method))
     (if (equal (prefix-numeric-value args) 1)
         (vterm-toggle-hide)
-      (vterm vterm-buffer-name)))
+      (vterm (vterm-toggle--buffer-name))))
    ((equal (prefix-numeric-value args) 1)
     (vterm-toggle-show))
    ((equal (prefix-numeric-value args) 4)
     (let ((vterm-toggle-fullscreen-p
            (not vterm-toggle-fullscreen-p)))
       (vterm-toggle-show)))))
+
+(defun vterm-toggle--buffer-name ()
+    vterm-buffer-name)
 
 ;;;###autoload
 (defun vterm-toggle-cd(&optional args)
@@ -297,7 +300,7 @@ after you have toggle to the vterm buffer with `vterm-toggle'."
 (defun vterm-toggle--new(&optional buffer-name)
   "New vterm buffer."
   (let ((default-directory default-directory)
-        (buffer-name (or buffer-name vterm-buffer-name))
+        (buffer-name (or buffer-name (vterm-toggle--buffer-name)))
         project-root)
     (when (and vterm-toggle-project-root
                (eq vterm-toggle-scope 'project))
