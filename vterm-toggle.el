@@ -49,6 +49,7 @@
 (declare-function vterm-send-return "vterm")
 (declare-function vterm-other-window "vterm")
 (defvar vterm-buffer-name  "*vterm*")
+(defvar vterm-toggle-buffer-name-fn nil)
 
 (defcustom vterm-toggle-show-hook nil
   "Hooks when swith to vterm buffer."
@@ -132,7 +133,9 @@ Optional argument ARGS ."
       (vterm-toggle-show)))))
 
 (defun vterm-toggle--buffer-name ()
-    vterm-buffer-name)
+  (if vterm-toggle-buffer-name-fn
+      (funcall vterm-toggle-buffer-name-fn)
+    vterm-buffer-name))
 
 ;;;###autoload
 (defun vterm-toggle-cd(&optional args)
