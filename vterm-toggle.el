@@ -384,8 +384,8 @@ Optional argument ARGS optional args."
 (defun vterm-toggle--in-cmd-buffer-p()
   (when (vterm-cursor-in-command-buffer-p)
     (or (eq (vterm--get-prompt-point) (vterm--get-cursor-point))
-        (and (= 1 (vterm--backward-char))
-             (= 1 (vterm--forward-char))))))
+        (and (vterm--backward-char)
+             (vterm--forward-char)))))
 
 (defun vterm-toggle--project-root()
   (let ((proj (project-current)))
