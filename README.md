@@ -59,7 +59,7 @@ And you can bind
 (add-to-list 'display-buffer-alist
              '((lambda(bufname _) (with-current-buffer bufname
                                     (or (equal major-mode 'vterm-mode)
-                                        (equal bufname vterm-buffer-name))))
+                                        (string-prefix-p vterm-buffer-name bufname))))
          (display-buffer-reuse-window display-buffer-same-window)))
 
 
@@ -70,7 +70,7 @@ And you can bind
 (add-to-list 'display-buffer-alist
              '((lambda(bufname _) (with-current-buffer bufname
                                     (or (equal major-mode 'vterm-mode)
-                                        (equal bufname vterm-buffer-name))))
+                                        (string-prefix-p vterm-buffer-name bufname))))
                 (display-buffer-reuse-window display-buffer-at-bottom)
                 ;;(display-buffer-reuse-window display-buffer-in-direction)
                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
@@ -86,7 +86,7 @@ If you want show vterm buffer at bottom side window:
 (add-to-list 'display-buffer-alist
              '((lambda(bufname _) (with-current-buffer bufname
                                     (or (equal major-mode 'vterm-mode)
-                                        (equal bufname vterm-buffer-name))))
+                                        (string-prefix-p vterm-buffer-name bufname))))
                (display-buffer-reuse-window display-buffer-in-side-window)
                (side . bottom)
                ;;(dedicated . t) ;dedicated is supported in emacs27
