@@ -57,9 +57,11 @@ And you can bind
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
-             '((lambda(bufname _) (with-current-buffer bufname
-                                    (or (equal major-mode 'vterm-mode)
-                                        (string-prefix-p vterm-buffer-name bufname))))
+             '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
          (display-buffer-reuse-window display-buffer-same-window)))
 
 
@@ -68,9 +70,11 @@ And you can bind
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
-             '((lambda(bufname _) (with-current-buffer bufname
-                                    (or (equal major-mode 'vterm-mode)
-                                        (string-prefix-p vterm-buffer-name bufname))))
+             '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
                 (display-buffer-reuse-window display-buffer-at-bottom)
                 ;;(display-buffer-reuse-window display-buffer-in-direction)
                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
@@ -84,9 +88,11 @@ If you want show vterm buffer at bottom side window:
 ```
 (setq vterm-toggle-fullscreen-p nil)
 (add-to-list 'display-buffer-alist
-             '((lambda(bufname _) (with-current-buffer bufname
-                                    (or (equal major-mode 'vterm-mode)
-                                        (string-prefix-p vterm-buffer-name bufname))))
+             '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
                (display-buffer-reuse-window display-buffer-in-side-window)
                (side . bottom)
                ;;(dedicated . t) ;dedicated is supported in emacs27
