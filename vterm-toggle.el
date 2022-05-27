@@ -441,7 +441,7 @@ Option OFFSET for skip OFFSET number term buffer."
                                   (mod (- index offset) buffer-list-len))))
               (switch-to-buffer (nth target-index vterm-toggle--buffer-list)))
           (switch-to-buffer (car vterm-toggle--buffer-list))))
-    nil))
+    (call-interactively 'vterm)))
 
 ;;;###autoload
 (defun vterm-toggle-forward (&optional offset)
