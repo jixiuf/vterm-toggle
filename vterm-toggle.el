@@ -290,9 +290,11 @@ Optional argument MAKE-CD whether insert a cd command."
   "Cd to the directory where your previous buffer file exists.
 after you have toggle to the vterm buffer with `vterm-toggle'."
   (interactive)
-  (when vterm-toggle--cd-cmd
-    (vterm-send-string vterm-toggle--cd-cmd t)
-    (vterm-send-return)))
+  (if (eq major-mode 'vterm-mode)
+      (when vterm-toggle--cd-cmd
+        (vterm-send-string vterm-toggle--cd-cmd t)
+        (vterm-send-return))
+    (call-interactively #'vterm-toggle-cd-show)))
 
 (defun vterm-toggle--new(&optional buffer-name)
   "New vterm buffer."
