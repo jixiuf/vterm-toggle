@@ -427,6 +427,10 @@ Optional argument ARGS optional args."
   (add-to-list 'vterm-toggle--buffer-list (current-buffer)))
 (add-hook 'vterm-mode-hook #'vterm-toggle--mode-hook)
 
+(dolist (buf (buffer-list))
+  (when (eq (buffer-local-value 'major-mode buf) 'vterm-mode)
+    (add-to-list 'vterm-toggle--buffer-list buf t)))
+
 (defun vterm-toggle--switch (direction offset)
   "Internal `vterm-toggle' buffers switch function.
 If DIRECTION is `forward', switch to the next term.
