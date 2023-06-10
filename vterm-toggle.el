@@ -412,9 +412,13 @@ Optional argument ARGS optional args."
     (setq vterm-toggle--buffer-list
           (delq (current-buffer) vterm-toggle--buffer-list))
     (if (eq vterm-toggle-reset-window-configration-after-exit 'kill-window-only)
-        (if (window-deletable-p)
-            (delete-window)
-          (quit-window))
+        (cond
+         ((eq (window-deletable-p) 'frame)
+          (delete-frame))
+         ((eq (window-deletable-p) t)
+          (delete-window))
+         (t
+          (quit-window)))
       (when (and vterm-toggle-reset-window-configration-after-exit
                  vterm-toggle--window-configration)
         (set-window-configuration vterm-toggle--window-configration)))))
