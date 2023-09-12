@@ -211,9 +211,7 @@ If the `tramp-methods' entry does not exist, return NIL."
 (defun vterm-toggle-cd-show(&optional  args)
   "Switch to an idle vterm buffer and insert a cd command.
 Or create 1 new vterm buffer.
-Optional argument ARGS optional args.
-Usually I would bind it in `vterm-mode-map'
-(define-key vterm-mode-map (kbd \"s-t\")   #'vmacs-vterm-toggle-show)"
+Optional argument ARGS optional args."
   (interactive "P")
   (vterm-toggle-show (not args)))
 
@@ -226,7 +224,7 @@ Optional argument MAKE-CD whether insert a cd command."
   (let* ((shell-buffer (vterm-toggle--get-buffer
                         make-cd (not vterm-toggle-cd-auto-create-buffer)))
          (dir (expand-file-name default-directory))
-         cd-cmd cur-host vterm-dir vterm-host cur-user cur-port   )
+         cd-cmd cur-host vterm-dir vterm-host)
     (if (ignore-errors (file-remote-p dir))
         (with-parsed-tramp-file-name dir nil
           (setq cur-host host)
@@ -388,11 +386,10 @@ Optional argument ARGS optional args."
              (vterm--forward-char)))))
 
 (defun vterm-toggle--project-root()
+  (require 'project)
   (let ((proj (project-current)))
     (when proj
-      (if (fboundp 'project-root)
-          (project-root proj)
-        (car (project-roots proj))))))
+      (project-root proj))))
 
 (defun vterm-toggle--recent-other-buffer(&optional _args)
   "Get last viewed buffer.
